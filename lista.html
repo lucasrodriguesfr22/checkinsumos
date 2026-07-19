@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkinsumos - Lista</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; }
+        .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; }
+        .aprovado { color: #4CAF50; font-weight: bold; }
+        .reprovado { color: #f44336; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <button onclick="history.back()">⬅ Voltar</button>
+    <h2 id="titulo">Carregando...</h2>
+    <div id="results"></div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const tipoSelecionado = params.get('tipo');
+        document.getElementById('titulo').innerText = "Insumos: " + tipoSelecionado;
+
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; // MESMO LINK DO INDEX
+
+        fetch(CSV_URL)
+            .then(res => res.text())
+            .then(data => {
+                const rows = data.split('\n').slice(1);
+                const container = document.getElementById('results');
+                container.innerHTML = rows
+                    .filter(row => row.includes(tipoSelecionado))
+                    .map(row => {
+                        const cols = row.split(',');
+                        return `
+                            <div class="card">
+                                <strong>${cols[1]}</strong><br>
+                                Lote: ${cols[4]} | NF: ${cols[3]}<br>
+                                <span class="${cols[6].toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado'}">${cols[6]}</span>
+                            </div>`;
+                    }).join('');
+            });
+    </script>
+</body>
+</html>
