@@ -8,48 +8,42 @@
         /* Estilos base e Modo Escuro (Padrão) */
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; transition: background 0.3s, color 0.3s; }
         
-        /* Cabeçalho com Flexbox e Ícone à direita */
         header { 
-            background: #F40009; 
-            padding: 20px; 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 22px; 
-            position: relative; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
+            background: #F40009; padding: 20px; text-align: center; font-weight: bold; font-size: 22px; 
+            position: relative; display: flex; justify-content: center; align-items: center;
         }
         
-        /* Ícone de tema limpo no canto */
-        .theme-icon { 
-            position: absolute; 
-            right: 20px; 
-            font-size: 24px; 
-            cursor: pointer; 
-            user-select: none;
-        }
+        .theme-icon { position: absolute; right: 20px; font-size: 24px; cursor: pointer; user-select: none; }
 
-        /* Estilos do Modo Claro */
-        body.light-mode { background: #f4f4f4; color: #121212; }
-        body.light-mode .card { background: #ffffff; border: 1px solid #ccc; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        /* Estilos da Busca Global */
+        .search-container { padding: 15px 15px 0 15px; }
+        input { width: 100%; padding: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-size: 16px; }
+        
+        #global-results { display: none; flex-direction: column; padding: 15px; gap: 10px; }
+        
+        /* Layout dos cards de resultado (parecido com a lista) */
+        .list-card { background: #1e1e1e; padding: 15px; border-radius: 10px; border-left: 5px solid #F40009; cursor: pointer; transition: 0.3s; }
+        .list-card:active { transform: scale(0.98); }
+        .list-card span.tipo { color: #aaa; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
         
-        /* Layout fixo dos cards */
+        /* Layout fixo dos cards do Menu */
         .card { 
             background: #1e1e1e; border-radius: 12px; text-align: center; 
             padding: 15px; border: 1px solid #333; cursor: pointer; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: background 0.3s, border 0.3s, color 0.3s;
         }
-        
-        .card img { 
-            width: 90px; height: 90px; object-fit: contain; margin-bottom: 10px; 
-            background-color: transparent; 
-        }
-        
+        .card img { width: 90px; height: 90px; object-fit: contain; margin-bottom: 10px; background-color: transparent; }
         .card div { font-weight: bold; font-size: 13px; margin-top: 5px; }
+
+        /* Estilos do Modo Claro */
+        body.light-mode { background: #f4f4f4; color: #121212; }
+        body.light-mode .card, body.light-mode .list-card { background: #ffffff; border: 1px solid #ccc; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        body.light-mode .list-card { border-left: 5px solid #F40009; }
+        body.light-mode input { background: #ffffff; color: #121212; border: 1px solid #ccc; }
+        body.light-mode .list-card span.tipo { color: #666; }
     </style>
 </head>
 <body>
@@ -58,32 +52,36 @@
         <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </header>
 
-    <div class="grid">
+    <!-- Nova Barra de Busca Global -->
+    <div class="search-container">
+        <input type="text" id="global-search" placeholder="🔍 Buscar lote, NF ou produto...">
+    </div>
+
+    <!-- Container para mostrar os resultados da busca -->
+    <div id="global-results"></div>
+
+    <!-- Menu Grid Original -->
+    <div class="grid" id="menu-grid">
         <div class="card" onclick="window.location.href='lista.html?tipo=Rótulo'">
             <img src="https://i.ibb.co/qYKFTNrp/rotulo-foto.webp" alt="Rótulo">
             <div>RÓTULO</div>
         </div>
-        
         <div class="card" onclick="window.location.href='lista.html?tipo=Filme'">
             <img src="https://i.ibb.co/JRvk2kds/foto-filme-decorado.webp" alt="Filme">
             <div>FILME DECORADO</div>
         </div>
-        
         <div class="card" onclick="window.location.href='lista.html?tipo=Lata'">
             <img src="https://i.ibb.co/23wS70YF/lata-foto.jpg" alt="Lata">
             <div>LATA</div>
         </div>
-        
         <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Plástica'">
             <img src="https://i.ibb.co/Xr6phwX6/foto-tampa-plastica.jpg" alt="Tampa Plástica">
             <div>TAMPA PLÁSTICA</div>
         </div>
-        
         <div class="card" onclick="window.location.href='lista.html?tipo=Rolha'">
             <img src="https://i.ibb.co/7NWCVYmm/rolha.webp" alt="Rolha">
             <div>ROLHA METÁLICA</div>
         </div>
-        
         <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Lata'">
             <img src="https://i.ibb.co/JW34cP24/tampa-lata.jpg" alt="Tampa Lata">
             <div>TAMPA PARA LATA</div>
@@ -91,8 +89,8 @@
     </div>
 
     <script>
+        // --- LÓGICA DO TEMA ---
         const themeIcon = document.getElementById('theme-toggle');
-
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
             if (document.body.classList.contains('light-mode')) {
@@ -103,12 +101,63 @@
                 themeIcon.innerText = '☀️';
             }
         }
-
-        // Verifica preferência ao carregar
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('light-mode');
             themeIcon.innerText = '🌙';
         }
+
+        // --- LÓGICA DA BUSCA GLOBAL ---
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; // <--- INSIRA O SEU LINK AQUI
+        
+        let todosOsDados = [];
+
+        // Assim que a página abre, ele já baixa a planilha em segundo plano
+        if(CSV_URL !== 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv') {
+            fetch(CSV_URL)
+                .then(res => res.text())
+                .then(data => {
+                    // Pega as linhas, tira cabeçalho e linhas em branco, inverte a ordem
+                    todosOsDados = data.split('\n').slice(1).filter(row => row.trim() !== '').reverse();
+                });
+        }
+
+        const searchInput = document.getElementById('global-search');
+        const resultsContainer = document.getElementById('global-results');
+        const menuGrid = document.getElementById('menu-grid');
+
+        searchInput.addEventListener('input', (e) => {
+            const termoBusca = e.target.value.toLowerCase().trim();
+            
+            // Se o usuário apagar o texto, volta a mostrar o menu de botões
+            if (termoBusca === '') {
+                resultsContainer.style.display = 'none';
+                menuGrid.style.display = 'grid';
+                return;
+            }
+
+            // Esconde o menu e mostra a área de resultados
+            menuGrid.style.display = 'none';
+            resultsContainer.style.display = 'flex';
+
+            // Filtra os dados
+            const resultados = todosOsDados.filter(row => row.toLowerCase().includes(termoBusca));
+
+            if (resultados.length > 0) {
+                // Monta os cards de resultado limitando a 30 itens para não travar o celular
+                resultsContainer.innerHTML = resultados.slice(0, 30).map(row => {
+                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+                    const rowData = encodeURIComponent(row);
+                    
+                    return `<div class="list-card" onclick="window.location.href='detalhes.html?data=' + '${rowData}'">
+                                <span class="tipo">Categoria: ${cols[0]}</span>
+                                <strong>${cols[1]}</strong><br>
+                                Lote: ${cols[4]} | NF: ${cols[3]}
+                            </div>`;
+                }).join('');
+            } else {
+                resultsContainer.innerHTML = '<div style="text-align:center; margin-top:20px; color:#aaa;">Nenhum insumo encontrado.</div>';
+            }
+        });
     </script>
 </body>
 </html>
