@@ -7,40 +7,58 @@
     <style>
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; }
         header { background: #F40009; padding: 20px; text-align: center; font-weight: bold; font-size: 22px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .card { background: #1e1e1e; border-radius: 8px; text-align: center; padding: 10px; border: 1px solid #333; cursor: pointer; }
-        .card img { width: 80%; height: 80px; object-fit: contain; margin-bottom: 5px; }
-        .card div { font-weight: bold; font-size: 13px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        
+        /* Layout fixo dos cards para não quebrar a tela */
+        .card { 
+            background: #1e1e1e; border-radius: 12px; text-align: center; 
+            padding: 15px; border: 1px solid #333; cursor: pointer; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        
+        /* Tamanho fixo das imagens */
+        .card img { 
+            width: 90px; height: 90px; object-fit: contain; margin-bottom: 10px; 
+            background-color: transparent; 
+        }
+        
+        .card div { font-weight: bold; font-size: 13px; margin-top: 5px; }
     </style>
 </head>
 <body>
     <header>Checkinsumos</header>
     <div class="grid">
-        <!-- Cole o link da imagem no src="..." -->
+        
         <div class="card" onclick="window.location.href='lista.html?tipo=Rótulo'">
-            <img src="https://drive.google.com/file/d/1TjjSXtysIoRUzf6IThRX9NkQcaSrYzLi/view?usp=sharing" alt="Rótulo">
+            <img src="https://drive.google.com/file/d/1TjjSXtysIoRUzf6IThRX9NkQcaSrYzLi/view?usp=drive_link" alt="Rótulo">
             <div>RÓTULO</div>
         </div>
+        
         <div class="card" onclick="window.location.href='lista.html?tipo=Filme'">
-            <img src="LINK_DA_IMAGEM_FILME" alt="Filme">
+            <img src="COLE_O_LINK_AQUI" alt="Filme">
             <div>FILME DECORADO</div>
         </div>
+        
         <div class="card" onclick="window.location.href='lista.html?tipo=Lata'">
-            <img src="LINK_DA_IMAGEM_LATA" alt="Lata">
+            <img src="COLE_O_LINK_AQUI" alt="Lata">
             <div>LATA</div>
         </div>
+        
         <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Plástica'">
-            <img src="LINK_DA_IMAGEM_TAMPA_PLASTICA" alt="Tampa Plástica">
+            <img src="COLE_O_LINK_AQUI" alt="Tampa Plástica">
             <div>TAMPA PLÁSTICA</div>
         </div>
+        
         <div class="card" onclick="window.location.href='lista.html?tipo=Rolha'">
-            <img src="LINK_DA_IMAGEM_ROLHA" alt="Rolha">
+            <img src="COLE_O_LINK_AQUI" alt="Rolha">
             <div>ROLHA METÁLICA</div>
         </div>
+        
         <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Lata'">
-            <img src="LINK_DA_IMAGEM_TAMPA_LATA" alt="Tampa Lata">
+            <img src="COLE_O_LINK_AQUI" alt="Tampa Lata">
             <div>TAMPA PARA LATA</div>
         </div>
+        
     </div>
 </body>
 </html>
