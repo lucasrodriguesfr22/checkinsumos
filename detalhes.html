@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
     <link rel="apple-touch-icon" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
     
+    <!-- Script necessário para gerar a imagem da Ficha -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -75,29 +76,21 @@
         const dataParam = params.get('data');
 
         if (dataParam) {
-            const row = decodeURIComponent(dataParam);
-            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-
-            const formatarNumero = (str) => {
-                if (!str) return '-';
-                return /^[0-9.]+$/.test(str.trim()) ? str.replace(/\./g, '') : str;
-            };
-
-            const loteLimpo = formatarNumero(cols[4]);
-            const nfLimpa = formatarNumero(cols[3]);
+            const cols = JSON.parse(decodeURIComponent(dataParam));
 
             const statusTexto = cols[6] ? cols[6].trim() : '';
             const statusClasse = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
 
+            // O style="white-space: pre-wrap;" garante que quebras de linha reais da planilha também apareçam na tela
             document.getElementById('ficha').innerHTML = `
                 <h2>${cols[1] || '-'}</h2>
                 <div class="linha-info"><strong>Tipo de Produto:</strong> ${cols[0] || '-'}</div>
                 <div class="linha-info"><strong>GAR / SKUR:</strong> ${cols[2] || '-'}</div>
-                <div class="linha-info"><strong>Nota Fiscal:</strong> ${nfLimpa}</div>
-                <div class="linha-info"><strong>Lote:</strong> ${loteLimpo}</div>
+                <div class="linha-info"><strong>Nota Fiscal:</strong> ${cols[7] || '-'}</div>
+                <div class="linha-info" style="white-space: pre-wrap;"><strong>Lote:</strong> ${cols[8] || '-'}</div>
                 <div class="linha-info"><strong>Data de Validade:</strong> ${cols[5] || '-'}</div>
                 <div class="linha-info"><strong>Situação:</strong> <span class="${statusClasse}">${statusTexto || '-'}</span></div>
-                <div class="linha-info"><strong>Observação:</strong> ${cols[7] || 'Nenhuma'}</div>
+                <div class="linha-info"><strong>Observação:</strong> ${cols[10] || cols[11] || 'Nenhuma'}</div>
             `;
             
             document.getElementById('btn-share').style.display = 'flex';

@@ -10,7 +10,8 @@
 
     <style>
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-size: 16px; outline: none;}
+        input:focus { border: 1px solid #F40009; }
         
         .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; cursor: pointer; transition: background 0.3s, color 0.3s, transform 0.1s; }
         .card:active { transform: scale(0.98); } 
@@ -64,23 +65,36 @@
 
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; 
 
-        fetch(CSV_URL)
+        // Leitor de CSV Avançado
+        function lerCSV(texto) {
+            let linhas = []; let celula = ""; let dentroDeAspas = false; let linhaAtual = [];
+            for (let i = 0; i < texto.length; i++) {
+                let char = texto[i]; let proxChar = texto[i + 1];
+                if (char === '"' && dentroDeAspas && proxChar === '"') { celula += '"'; i++; }
+                else if (char === '"') { dentroDeAspas = !dentroDeAspas; }
+                else if (char === ',' && !dentroDeAspas) { linhaAtual.push(celula.trim()); celula = ""; }
+                else if ((char === '\n' || char === '\r') && !dentroDeAspas) {
+                    if (char === '\r' && proxChar === '\n') i++;
+                    linhaAtual.push(celula.trim()); linhas.push(linhaAtual); linhaAtual = []; celula = "";
+                } else { celula += char; }
+            }
+            if (celula || linhaAtual.length > 0) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); }
+            return linhas.slice(1);
+        }
+
+        fetch(CSV_URL + '&nocache=' + new Date().getTime())
             .then(res => res.text())
             .then(data => {
-                const rows = data.split('\n').slice(1).filter(row => row.trim() !== '');
+                const processedRows = lerCSV(data).reverse();
                 const container = document.getElementById('results');
                 const search = document.getElementById('search');
 
-                const processedRows = rows.reverse();
-
                 function render(term = '') {
-                    const termoLimpo = term.toLowerCase().replace(/[.\-\s/]/g, '');
+                    const termoLimpo = term.toLowerCase().trim();
 
                     container.innerHTML = processedRows
-                        .filter(row => {
-                            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+                        .filter(cols => {
                             if (!cols[0]) return false;
-
                             const tipoProdutoPlanilha = cols[0].toLowerCase();
                             const filtroEscolhido = tipoFiltro.toLowerCase();
 
@@ -92,26 +106,20 @@
                             }
                             return tipoProdutoPlanilha.includes(filtroEscolhido);
                         })
-                        .filter(row => {
-                            const linhaLimpa = row.toLowerCase().replace(/[.\-\s/]/g, '');
-                            return linhaLimpa.includes(termoLimpo);
+                        .filter(cols => {
+                            const linhaCompleta = cols.join(' ').toLowerCase();
+                            return linhaCompleta.includes(termoLimpo);
                         })
-                        .map(row => {
-                            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                            const rowData = encodeURIComponent(row);
+                        .map(cols => {
+                            const rowData = encodeURIComponent(JSON.stringify(cols));
                             
-                            const formatarNumero = (str) => {
-                                if (!str) return '-';
-                                return /^[0-9.]+$/.test(str.trim()) ? str.replace(/\./g, '') : str;
-                            };
-
-                            const loteLimpo = formatarNumero(cols[4]);
-                            const nfLimpa = formatarNumero(cols[3]);
+                            const statusTexto = cols[6] ? cols[6].trim() : '';
+                            const statusClasse = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
                             
                             return `<div class="card" onclick="window.location.href='detalhes.html?data=' + '${rowData}'">
                                         <strong>${cols[1]}</strong><br>
-                                        Lote: ${loteLimpo} | NF: ${nfLimpa}<br>
-                                        <span class="${cols[6] && cols[6].toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado'}">${cols[6] || ''}</span>
+                                        Lote: ${cols[8] || '-'} | NF: ${cols[7] || '-'}<br>
+                                        <span class="${statusClasse}">${statusTexto}</span>
                                     </div>`;
                         }).join('');
                 }
