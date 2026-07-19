@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes do Insumo</title>
+    
+    <!-- Biblioteca responsável por "tirar o print" da tela -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
+        /* Estilos base */
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
         
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        button { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
+        .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
 
         /* Estilo da Ficha de Detalhes */
@@ -20,23 +25,36 @@
         .aprovado { color: #4CAF50; font-weight: bold; }
         .reprovado { color: #f44336; font-weight: bold; }
 
+        /* Estilo do Botão de Compartilhar */
+        .btn-share {
+            width: 100%; background: #25D366; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; display: none; justify-content: center; align-items: center; gap: 10px; transition: 0.3s;
+        }
+        .btn-share:active { transform: scale(0.98); }
+
         /* Modo Claro */
         body.light-mode { background: #f4f4f4; color: #121212; }
-        body.light-mode button { background: #ddd; color: #121212; }
+        body.light-mode .btn-voltar { background: #ddd; color: #121212; }
         body.light-mode .detalhes-container { background: #ffffff; border: 1px solid #ccc; border-top: 6px solid #F40009; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         body.light-mode .detalhes-container h2 { border-bottom: 1px solid #ccc; }
         body.light-mode .linha-info strong { color: #666; }
+        body.light-mode .btn-share { background: #20b053; }
     </style>
 </head>
 <body>
     <div class="header-top">
-        <button onclick="history.back()">⬅ Voltar</button>
+        <button class="btn-voltar" onclick="history.back()">⬅ Voltar</button>
         <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </div>
 
+    <!-- O id="ficha" é a parte que sairá na foto -->
     <div class="detalhes-container" id="ficha">
-        <!-- Os dados vão aparecer aqui -->
+        <h2>Carregando...</h2>
     </div>
+
+    <!-- Botão de compartilhamento que fica fora da foto -->
+    <button class="btn-share" id="btn-share" onclick="compartilharFicha()">
+        📤 Compartilhar no WhatsApp
+    </button>
 
     <script>
         // --- LÓGICA DO TEMA ---
@@ -57,7 +75,6 @@
         }
 
         // --- LÓGICA DE EXIBIR OS DETALHES ---
-        // Pega os dados enviados pela URL e decodifica
         const params = new URLSearchParams(window.location.search);
         const dataParam = params.get('data');
 
@@ -65,11 +82,9 @@
             const row = decodeURIComponent(dataParam);
             const cols = row.split(',');
 
-            // Determina a cor do status
             const statusTexto = cols[6] ? cols[6].trim() : '';
             const statusClasse = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
 
-            // Monta a ficha com as 8 colunas da sua BASE GERAL
             document.getElementById('ficha').innerHTML = `
                 <h2>${cols[1] || '-'}</h2>
                 <div class="linha-info"><strong>Tipo de Produto:</strong> ${cols[0] || '-'}</div>
@@ -80,8 +95,67 @@
                 <div class="linha-info"><strong>Situação:</strong> <span class="${statusClasse}">${statusTexto || '-'}</span></div>
                 <div class="linha-info"><strong>Observação:</strong> ${cols[7] || 'Nenhuma'}</div>
             `;
+            
+            // Mostra o botão de compartilhar apenas se os dados carregarem certo
+            document.getElementById('btn-share').style.display = 'flex';
         } else {
             document.getElementById('ficha').innerHTML = `<h2>Erro ao carregar dados.</h2>`;
+        }
+
+        // --- LÓGICA DE GERAR IMAGEM E COMPARTILHAR ---
+        async function compartilharFicha() {
+            const btn = document.getElementById('btn-share');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Gerando imagem...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+            
+            try {
+                const ficha = document.getElementById('ficha');
+                
+                // Define as cores certas para o print dependendo do tema atual
+                const isLightMode = document.body.classList.contains('light-mode');
+                const bgColor = isLightMode ? '#ffffff' : '#1e1e1e';
+
+                // Tira o print do elemento html
+                const canvas = await html2canvas(ficha, {
+                    backgroundColor: bgColor,
+                    scale: 2 // Dobra a resolução para o print ficar com alta qualidade
+                });
+                
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'ficha-insumo.png', { type: 'image/png' });
+                    
+                    // Verifica se o celular suporta enviar o arquivo direto para os apps
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Ficha de Insumo',
+                            text: 'Ficha de conferência gerada via Checkinsumos'
+                        });
+                    } else {
+                        // Se estiver num PC ou navegador incompatível, ele baixa a imagem
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'ficha-insumo.png';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }
+                    
+                    // Restaura o botão
+                    btn.innerHTML = originalText;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                }, 'image/png');
+                
+            } catch (error) {
+                console.error("Erro ao compartilhar: ", error);
+                alert("Não foi possível gerar a imagem para compartilhamento.");
+                btn.innerHTML = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
         }
     </script>
 </body>
