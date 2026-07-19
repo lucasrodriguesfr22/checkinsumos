@@ -5,30 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta</title>
     <style>
-        /* Estilos base e Modo Escuro (Padrão) */
+        /* Estilos base */
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
         input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
         .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; transition: background 0.3s, color 0.3s; }
         .aprovado { color: #4CAF50; font-weight: bold; }
         .reprovado { color: #f44336; font-weight: bold; }
+        
         button { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
         
         /* Layout do Topo */
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .theme-btn { padding: 10px 15px; background: #333; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
+        .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
 
         /* Estilos do Modo Claro */
         body.light-mode { background: #f4f4f4; color: #121212; }
         body.light-mode .card { background: #ffffff; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-right: 1px solid #ccc; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
         body.light-mode input { background: #ffffff; color: #121212; border: 1px solid #ccc; }
         body.light-mode button { background: #ddd; color: #121212; }
-        body.light-mode .theme-btn { background: #ddd; color: #121212; }
     </style>
 </head>
 <body>
     <div class="header-top">
         <button onclick="history.back()">⬅ Voltar</button>
-        <div class="theme-btn" onclick="toggleTheme()">☀️/🌙 Tema</div>
+        <!-- Apenas o ícone aqui também -->
+        <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </div>
     
     <h2 id="titulo">Carregando...</h2>
@@ -37,18 +38,22 @@
 
     <script>
         // --- LÓGICA DO TEMA (CLARO/ESCURO) ---
+        const themeIcon = document.getElementById('theme-toggle');
+
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
             if (document.body.classList.contains('light-mode')) {
                 localStorage.setItem('theme', 'light');
+                themeIcon.innerText = '🌙';
             } else {
                 localStorage.setItem('theme', 'dark');
+                themeIcon.innerText = '☀️';
             }
         }
 
-        // Verifica a preferência salva antes de carregar o resto
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('light-mode');
+            themeIcon.innerText = '🌙';
         }
 
         // --- LÓGICA DOS DADOS E PESQUISA ---
@@ -56,7 +61,8 @@
         const tipoFiltro = params.get('tipo');
         document.getElementById('titulo').innerText = "Insumo: " + tipoFiltro;
 
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; // <-- NÃO ESQUEÇA DE COLOCAR O SEU LINK AQUI
+        // COLE AQUI SEU LINK CSV PUBLICADO DA PLANILHA!
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; 
 
         fetch(CSV_URL)
             .then(res => res.text())
@@ -65,7 +71,7 @@
                 const container = document.getElementById('results');
                 const search = document.getElementById('search');
 
-                const processedRows = rows.reverse(); // Últimos lançamentos primeiro
+                const processedRows = rows.reverse();
 
                 function render(term = '') {
                     container.innerHTML = processedRows
