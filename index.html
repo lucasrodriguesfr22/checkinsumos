@@ -3,37 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkinsumos</title>
+    <title>Menu Checkinsumos</title>
     <style>
-        :root { --primary: #F40009; --bg: #121212; }
-        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; }
-        header { background: var(--primary); padding: 15px; text-align: center; font-weight: bold; font-size: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-        .card { background: #1e1e1e; border-radius: 10px; overflow: hidden; text-align: center; cursor: pointer; border: 1px solid #333; }
-        .card img { width: 100%; height: 120px; object-fit: cover; }
-        .card div { padding: 10px; font-weight: bold; }
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; }
+        header { background: #F40009; padding: 20px; text-align: center; font-weight: bold; font-size: 22px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .card { background: #1e1e1e; border-radius: 8px; text-align: center; padding: 15px; border: 1px solid #333; cursor: pointer; }
+        .card div { margin-top: 10px; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
     <header>Checkinsumos</header>
     <div class="grid">
-        <!-- Você pode substituir os links das imagens abaixo pelos links das fotos dos seus produtos -->
-        <div class="card" onclick="window.location.href='lista.html?tipo=Rótulo'">
-            <img src="https://img.freepik.com/fotos-premium/garrafa-de-coca-cola-fundo-branco_93675-7634.jpg" alt="Rótulo">
-            <div>RÓTULO</div>
-        </div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Filme'">
-            <img src="https://logodownload.org/wp-content/uploads/2014/09/coca-cola-logo-1.png" alt="Filme">
-            <div>FILME DECORADO</div>
-        </div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Lata'">
-            <img src="https://www.coca-cola.com.br/content/dam/one/br/pt/products/coca-cola-original-lata-350ml.png" alt="Lata">
-            <div>LATA</div>
-        </div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa'">
-            <img src="https://www.coca-cola.com.br/content/dam/one/br/pt/products/tampa.png" alt="Tampa">
-            <div>TAMPA PLÁSTICA</div>
-        </div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Rótulo'"><div>RÓTULO</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Filme'"><div>FILME DECORADO</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Lata'"><div>LATA</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Plástica'"><div>TAMPA PLÁSTICA</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Rolha'"><div>ROLHA METÁLICA</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Lata'"><div>TAMPA PARA LATA</div></div>
     </div>
 </body>
 </html>
