@@ -4,34 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes do Insumo</title>
-
     <link rel="icon" type="image/png" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
-    <link rel="apple-touch-icon" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
-    
-    <!-- Script necessário para gerar a imagem da Ficha -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
     <style>
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
-        
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
         .header-logo { height: 35px; border-radius: 8px; object-fit: contain; }
-
         .detalhes-container { background: #1e1e1e; padding: 20px; border-radius: 12px; border-top: 6px solid #F40009; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: background 0.3s, color 0.3s; }
         .detalhes-container h2 { margin-top: 0; margin-bottom: 20px; font-size: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .linha-info { margin-bottom: 15px; font-size: 16px; line-height: 1.4; }
         .linha-info strong { color: #aaa; display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 2px; }
-        
         .aprovado { color: #4CAF50; font-weight: bold; }
         .reprovado { color: #f44336; font-weight: bold; }
-
-        .btn-share {
-            width: 100%; background: #25D366; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; display: none; justify-content: center; align-items: center; gap: 10px; transition: 0.3s;
-        }
+        .btn-share { width: 100%; background: #25D366; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; display: none; justify-content: center; align-items: center; gap: 10px; transition: 0.3s; }
         .btn-share:active { transform: scale(0.98); }
-
         body.light-mode { background: #f4f4f4; color: #121212; }
         body.light-mode .btn-voltar { background: #ddd; color: #121212; }
         body.light-mode .detalhes-container { background: #ffffff; border: 1px solid #ccc; border-top: 6px solid #F40009; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -51,37 +39,23 @@
         <h2>Carregando...</h2>
     </div>
 
-    <button class="btn-share" id="btn-share" onclick="compartilharFicha()">
-        📤 Compartilhar Ficha
-    </button>
+    <button class="btn-share" id="btn-share" onclick="compartilharFicha()">📤 Compartilhar Ficha</button>
 
     <script>
         const themeIcon = document.getElementById('theme-toggle');
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
-            if (document.body.classList.contains('light-mode')) {
-                localStorage.setItem('theme', 'light');
-                themeIcon.innerText = '🌙';
-            } else {
-                localStorage.setItem('theme', 'dark');
-                themeIcon.innerText = '☀️';
-            }
+            if (document.body.classList.contains('light-mode')) { localStorage.setItem('theme', 'light'); themeIcon.innerText = '🌙'; } 
+            else { localStorage.setItem('theme', 'dark'); themeIcon.innerText = '☀️'; }
         }
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.classList.add('light-mode');
-            themeIcon.innerText = '🌙';
-        }
+        if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); themeIcon.innerText = '🌙'; }
 
-        const params = new URLSearchParams(window.location.search);
-        const dataParam = params.get('data');
-
+        const dataParam = new URLSearchParams(window.location.search).get('data');
         if (dataParam) {
             const cols = JSON.parse(decodeURIComponent(dataParam));
-
             const statusTexto = cols[6] ? cols[6].trim() : '';
             const statusClasse = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
 
-            // O style="white-space: pre-wrap;" garante que quebras de linha reais da planilha também apareçam na tela
             document.getElementById('ficha').innerHTML = `
                 <h2>${cols[1] || '-'}</h2>
                 <div class="linha-info"><strong>Tipo de Produto:</strong> ${cols[0] || '-'}</div>
@@ -92,63 +66,30 @@
                 <div class="linha-info"><strong>Situação:</strong> <span class="${statusClasse}">${statusTexto || '-'}</span></div>
                 <div class="linha-info"><strong>Observação:</strong> ${cols[10] || cols[11] || 'Nenhuma'}</div>
             `;
-            
             document.getElementById('btn-share').style.display = 'flex';
-        } else {
-            document.getElementById('ficha').innerHTML = `<h2>Erro ao carregar dados.</h2>`;
         }
 
         async function compartilharFicha() {
             const btn = document.getElementById('btn-share');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ Gerando imagem...';
-            btn.style.opacity = '0.7';
-            btn.disabled = true;
-            
+            btn.innerHTML = '⏳ Gerando imagem...'; btn.style.opacity = '0.7'; btn.disabled = true;
             try {
                 const ficha = document.getElementById('ficha');
                 const isLightMode = document.body.classList.contains('light-mode');
-                const bgColor = isLightMode ? '#ffffff' : '#1e1e1e';
-
-                const canvas = await html2canvas(ficha, {
-                    backgroundColor: bgColor,
-                    scale: 2 
-                });
-                
+                const canvas = await html2canvas(ficha, { backgroundColor: isLightMode ? '#ffffff' : '#1e1e1e', scale: 2 });
                 const imgData = canvas.toDataURL('image/png');
-                
                 try {
                     const blob = await (await fetch(imgData)).blob();
                     const file = new File([blob], 'ficha-insumo.png', { type: 'image/png' });
-                    
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            files: [file],
-                            title: 'Ficha de Insumo'
-                        });
-                        btn.innerHTML = originalText;
-                        btn.style.opacity = '1';
-                        btn.disabled = false;
-                    } else {
-                        throw new Error('Navegador não suporta Web Share');
-                    }
-                } catch (shareError) {
-                    ficha.innerHTML = `
-                        <div style="background: #ffeb3b; color: #000; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-size: 14px; font-weight: bold;">
-                            📱 Pressione e segure a imagem abaixo para Copiar ou Compartilhar!
-                        </div>
-                        <img src="${imgData}" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                    `;
+                        await navigator.share({ files: [file], title: 'Ficha de Insumo' });
+                        btn.innerHTML = originalText; btn.style.opacity = '1'; btn.disabled = false;
+                    } else { throw new Error('Sem suporte'); }
+                } catch (e) {
+                    ficha.innerHTML = `<div style="background: #ffeb3b; color: #000; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-size: 14px; font-weight: bold;">📱 Pressione e segure a imagem abaixo para Copiar ou Compartilhar!</div><img src="${imgData}" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">`;
                     btn.style.display = 'none'; 
                 }
-                
-            } catch (error) {
-                console.error("Erro ao gerar imagem: ", error);
-                alert("Não foi possível gerar a imagem.");
-                btn.innerHTML = originalText;
-                btn.style.opacity = '1';
-                btn.disabled = false;
-            }
+            } catch (error) { alert("Não foi possível gerar a imagem."); btn.innerHTML = originalText; btn.style.opacity = '1'; btn.disabled = false; }
         }
     </script>
 </body>
