@@ -2,154 +2,57 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta</title>
-
     <link rel="icon" type="image/png" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
-    <link rel="apple-touch-icon" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
-
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
-        
-        .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; cursor: pointer; transition: background 0.3s, color 0.3s, transform 0.1s; }
-        .card:active { transform: scale(0.98); } 
-        
-        .aprovado { color: #4CAF50; font-weight: bold; }
-        .reprovado { color: #f44336; font-weight: bold; }
-        
-        button { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
-        
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
-        .header-logo { height: 35px; border-radius: 8px; object-fit: contain; }
-
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; }
+        .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; cursor: pointer; }
         body.light-mode { background: #f4f4f4; color: #121212; }
-        body.light-mode .card { background: #ffffff; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-right: 1px solid #ccc; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
-        body.light-mode input { background: #ffffff; color: #121212; border: 1px solid #ccc; }
-        body.light-mode button { background: #ddd; color: #121212; }
+        body.light-mode .card { background: #ffffff; border: 1px solid #ccc; color: #121212; }
     </style>
 </head>
 <body>
-    <div class="header-top">
-        <button onclick="history.back()">⬅ Voltar</button>
-        <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" class="header-logo" alt="Logo">
-        <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
-    </div>
-    
+    <button onclick="history.back()">⬅ Voltar</button>
     <h2 id="titulo">Carregando...</h2>
-    <input type="text" id="search" placeholder="🔍 Pesquisar lote ou produto...">
+    <input type="text" id="search" placeholder="Pesquisar...">
     <div id="results"></div>
 
     <script>
-        const themeIcon = document.getElementById('theme-toggle');
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-            if (document.body.classList.contains('light-mode')) {
-                localStorage.setItem('theme', 'light');
-                themeIcon.innerText = '🌙';
-            } else {
-                localStorage.setItem('theme', 'dark');
-                themeIcon.innerText = '☀️';
-            }
-        }
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.classList.add('light-mode');
-            themeIcon.innerText = '🌙';
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        const tipoFiltro = params.get('tipo');
+        const tipoFiltro = new URLSearchParams(window.location.search).get('tipo');
         document.getElementById('titulo').innerText = "Insumo: " + tipoFiltro;
-
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; 
-        const urlSemCache = CSV_URL + '&nocache=' + new Date().getTime();
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv';
 
         function lerCSV(texto) {
-            let linhas = [];
-            let celulaAtual = "";
-            let dentroDeAspas = false;
-            let linhaAtual = [];
-
+            let linhas = [], celula = "", emAspas = false, linhaAtual = [];
             for (let i = 0; i < texto.length; i++) {
-                let char = texto[i];
-                let proxChar = texto[i + 1];
-
-                if (char === '"' && dentroDeAspas && proxChar === '"') {
-                    celulaAtual += '"';
-                    i++;
-                } else if (char === '"') {
-                    dentroDeAspas = !dentroDeAspas;
-                } else if (char === ',' && !dentroDeAspas) {
-                    linhaAtual.push(celulaAtual.trim());
-                    celulaAtual = "";
-                } else if (char === '\n' && !dentroDeAspas) {
-                    linhaAtual.push(celulaAtual.trim());
-                    linhas.push(linhaAtual);
-                    linhaAtual = [];
-                    celulaAtual = "";
-                } else if (char !== '\r') {
-                    celulaAtual += char;
-                }
+                let char = texto[i], prox = texto[i+1];
+                if (char === '"' && emAspas && prox === '"') { celula += '"'; i++; }
+                else if (char === '"') emAspas = !emAspas;
+                else if (char === ',' && !emAspas) { linhaAtual.push(celula.trim()); celula = ""; }
+                else if (char === '\n' && !emAspas) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); linhaAtual = []; celula = ""; }
+                else if (char !== '\r') celula += char;
             }
-            if (celulaAtual || linhaAtual.length > 0) {
-                linhaAtual.push(celulaAtual.trim());
-                linhas.push(linhaAtual);
-            }
+            if (celula || linhaAtual.length > 0) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); }
             return linhas.slice(1);
         }
 
-        fetch(urlSemCache)
-            .then(res => res.text())
-            .then(data => {
-                const processedRows = lerCSV(data).reverse();
-                const container = document.getElementById('results');
-                const search = document.getElementById('search');
-
-                function render(term = '') {
-                    const termoLimpo = term.toLowerCase().replace(/[.\-\s/]/g, '');
-
-                    container.innerHTML = processedRows
-                        .filter(cols => {
-                            if (!cols[0]) return false;
-
-                            const tipoProdutoPlanilha = cols[0].toLowerCase();
-                            const filtroEscolhido = tipoFiltro.toLowerCase();
-
-                            if (filtroEscolhido === 'lata') {
-                                return tipoProdutoPlanilha.includes('lata') && !tipoProdutoPlanilha.includes('tampa');
-                            }
-                            if (filtroEscolhido === 'tampa lata' || filtroEscolhido === 'tampa para lata') {
-                                return tipoProdutoPlanilha.includes('tampa') && tipoProdutoPlanilha.includes('lata');
-                            }
-                            return tipoProdutoPlanilha.includes(filtroEscolhido);
-                        })
-                        .filter(cols => {
-                            const linhaCompleta = cols.join(' ').toLowerCase().replace(/[.\-\s/]/g, '');
-                            return linhaCompleta.includes(termoLimpo);
-                        })
-                        .map(cols => {
-                            const rowData = encodeURIComponent(JSON.stringify(cols));
-                            
-                            const formatarNumero = (str) => {
-                                if (!str || str.trim() === '') return '-';
-                                return /^[0-9.]+$/.test(str.trim()) ? str.replace(/\./g, '') : str.trim();
-                            };
-
-                            const loteLimpo = formatarNumero(cols[4]);
-                            const nfLimpa = formatarNumero(cols[3]);
-                            
-                            return `<div class="card" onclick="window.location.href='detalhes.html?data=' + '${rowData}'">
-                                        <strong>${cols[1]}</strong><br>
-                                        Lote: ${loteLimpo} | NF: ${nfLimpa}<br>
-                                        <span class="${cols[6] && cols[6].toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado'}">${cols[6] || ''}</span>
-                                    </div>`;
-                        }).join('');
-                }
-
-                search.oninput = (e) => render(e.target.value);
-                render();
-            });
+        fetch(CSV_URL + '&nocache=' + new Date().getTime()).then(r => r.text()).then(data => {
+            const rows = lerCSV(data).reverse();
+            const container = document.getElementById('results');
+            function render(term = '') {
+                container.innerHTML = rows.filter(cols => {
+                    const tipo = cols[0].toLowerCase();
+                    if (tipoFiltro.toLowerCase() === 'lata') return tipo.includes('lata') && !tipo.includes('tampa');
+                    if (tipoFiltro.toLowerCase().includes('tampa lata')) return tipo.includes('tampa') && tipo.includes('lata');
+                    return tipo.includes(tipoFiltro.toLowerCase());
+                }).filter(cols => cols.join(' ').toLowerCase().includes(term.toLowerCase()))
+                .map(cols => `<div class="card" onclick="window.location.href='detalhes.html?data=' + encodeURIComponent(JSON.stringify(cols))">
+                    <strong>${cols[1]}</strong><br>Lote: ${cols[8] || '-'} | NF: ${cols[7] || '-'}
+                </div>`).join('');
+            }
+            document.getElementById('search').oninput = (e) => render(e.target.value);
+            render();
+        });
     </script>
 </body>
 </html>
