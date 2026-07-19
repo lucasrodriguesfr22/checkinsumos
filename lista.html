@@ -10,20 +10,16 @@
 
     <style>
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
-        
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-size: 16px; outline: none; }
+        input:focus { border: 1px solid #F40009; }
         .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; cursor: pointer; transition: background 0.3s, color 0.3s, transform 0.1s; }
         .card:active { transform: scale(0.98); } 
-        
         .aprovado { color: #4CAF50; font-weight: bold; }
         .reprovado { color: #f44336; font-weight: bold; }
-        
         button { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
-        
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
         .header-logo { height: 35px; border-radius: 8px; object-fit: contain; }
-
         body.light-mode { background: #f4f4f4; color: #121212; }
         body.light-mode .card { background: #ffffff; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-right: 1px solid #ccc; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
         body.light-mode input { background: #ffffff; color: #121212; border: 1px solid #ccc; }
@@ -45,18 +41,10 @@
         const themeIcon = document.getElementById('theme-toggle');
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
-            if (document.body.classList.contains('light-mode')) {
-                localStorage.setItem('theme', 'light');
-                themeIcon.innerText = '🌙';
-            } else {
-                localStorage.setItem('theme', 'dark');
-                themeIcon.innerText = '☀️';
-            }
+            if (document.body.classList.contains('light-mode')) { localStorage.setItem('theme', 'light'); themeIcon.innerText = '🌙'; } 
+            else { localStorage.setItem('theme', 'dark'); themeIcon.innerText = '☀️'; }
         }
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.classList.add('light-mode');
-            themeIcon.innerText = '🌙';
-        }
+        if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); themeIcon.innerText = '🌙'; }
 
         const params = new URLSearchParams(window.location.search);
         const tipoFiltro = params.get('tipo');
@@ -64,61 +52,58 @@
 
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; 
 
-        fetch(CSV_URL)
-            .then(res => res.text())
-            .then(data => {
-                const rows = data.split('\n').slice(1).filter(row => row.trim() !== '');
-                const container = document.getElementById('results');
-                const search = document.getElementById('search');
+        // Leitor Blindado de CSV
+        function lerCSV(texto) {
+            let linhas = [], celula = "", emAspas = false, linhaAtual = [];
+            for (let i = 0; i < texto.length; i++) {
+                let char = texto[i], prox = texto[i+1];
+                if (char === '"' && emAspas && prox === '"') { celula += '"'; i++; }
+                else if (char === '"') emAspas = !emAspas;
+                else if (char === ',' && !emAspas) { linhaAtual.push(celula.trim()); celula = ""; }
+                else if (char === '\n' && !emAspas) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); linhaAtual = []; celula = ""; }
+                else if (char !== '\r') celula += char;
+            }
+            if (celula || linhaAtual.length > 0) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); }
+            return linhas.slice(1);
+        }
 
-                const processedRows = rows.reverse();
+        fetch(CSV_URL).then(res => res.text()).then(data => {
+            const processedRows = lerCSV(data).reverse();
+            const container = document.getElementById('results');
+            const search = document.getElementById('search');
 
-                function render(term = '') {
-                    const termoLimpo = term.toLowerCase().replace(/[.\-\s/]/g, '');
+            function render(term = '') {
+                const termoLimpo = term.toLowerCase().replace(/[.\-\s/]/g, '');
 
-                    container.innerHTML = processedRows
-                        .filter(row => {
-                            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                            if (!cols[0]) return false;
+                container.innerHTML = processedRows.filter(cols => {
+                    if (!cols[0]) return false;
+                    const tipoProdutoPlanilha = cols[0].toLowerCase();
+                    const filtroEscolhido = tipoFiltro.toLowerCase();
 
-                            const tipoProdutoPlanilha = cols[0].toLowerCase();
-                            const filtroEscolhido = tipoFiltro.toLowerCase();
+                    if (filtroEscolhido === 'lata') return tipoProdutoPlanilha.includes('lata') && !tipoProdutoPlanilha.includes('tampa');
+                    if (filtroEscolhido === 'tampa lata' || filtroEscolhido === 'tampa para lata') return tipoProdutoPlanilha.includes('tampa') && tipoProdutoPlanilha.includes('lata');
+                    return tipoProdutoPlanilha.includes(filtroEscolhido);
+                }).filter(cols => {
+                    const linhaLimpa = cols.join(' ').toLowerCase().replace(/[.\-\s/]/g, '');
+                    return linhaLimpa.includes(termoLimpo);
+                }).map(cols => {
+                    const rowData = encodeURIComponent(JSON.stringify(cols)).replace(/'/g, "%27");
+                    
+                    const nfLimpa = cols[3] || '-';
+                    const loteLimpo = cols[4] || '-';
+                    const statusTexto = cols[6] ? cols[6].trim() : '';
+                    const classeStatus = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
 
-                            if (filtroEscolhido === 'lata') {
-                                return tipoProdutoPlanilha.includes('lata') && !tipoProdutoPlanilha.includes('tampa');
-                            }
-                            if (filtroEscolhido === 'tampa lata' || filtroEscolhido === 'tampa para lata') {
-                                return tipoProdutoPlanilha.includes('tampa') && tipoProdutoPlanilha.includes('lata');
-                            }
-                            return tipoProdutoPlanilha.includes(filtroEscolhido);
-                        })
-                        .filter(row => {
-                            const linhaLimpa = row.toLowerCase().replace(/[.\-\s/]/g, '');
-                            return linhaLimpa.includes(termoLimpo);
-                        })
-                        .map(row => {
-                            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                            const rowData = encodeURIComponent(row);
-                            
-                            const formatarNumero = (str) => {
-                                if (!str) return '-';
-                                return /^[0-9.]+$/.test(str.trim()) ? str.replace(/\./g, '') : str;
-                            };
-
-                            const loteLimpo = formatarNumero(cols[4]);
-                            const nfLimpa = formatarNumero(cols[3]);
-                            
-                            return `<div class="card" onclick="window.location.href='detalhes.html?data=' + '${rowData}'">
-                                        <strong>${cols[1]}</strong><br>
-                                        Lote: ${loteLimpo} | NF: ${nfLimpa}<br>
-                                        <span class="${cols[6] && cols[6].toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado'}">${cols[6] || ''}</span>
-                                    </div>`;
-                        }).join('');
-                }
-
-                search.oninput = (e) => render(e.target.value);
-                render();
-            });
+                    return `<div class="card" onclick="window.location.href='detalhes.html?data=${rowData}'">
+                                <strong>${cols[1] || '-'}</strong><br>
+                                Lote: ${loteLimpo} | NF: ${nfLimpa}<br>
+                                <span class="${classeStatus}">${statusTexto}</span>
+                            </div>`;
+                }).join('');
+            }
+            search.oninput = (e) => render(e.target.value);
+            render();
+        });
     </script>
 </body>
 </html>
