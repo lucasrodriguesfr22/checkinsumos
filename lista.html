@@ -5,24 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta</title>
     <style>
-        /* Estilos base */
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
         input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
         
-        /* Efeito de clique no card */
         .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; cursor: pointer; transition: background 0.3s, color 0.3s, transform 0.1s; }
-        .card:active { transform: scale(0.98); } /* Dá um efeitinho de afundar ao clicar */
+        .card:active { transform: scale(0.98); } 
         
         .aprovado { color: #4CAF50; font-weight: bold; }
         .reprovado { color: #f44336; font-weight: bold; }
         
         button { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
         
-        /* Layout do Topo */
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
 
-        /* Estilos do Modo Claro */
         body.light-mode { background: #f4f4f4; color: #121212; }
         body.light-mode .card { background: #ffffff; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-right: 1px solid #ccc; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
         body.light-mode input { background: #ffffff; color: #121212; border: 1px solid #ccc; }
@@ -40,7 +36,6 @@
     <div id="results"></div>
 
     <script>
-        // --- LÓGICA DO TEMA ---
         const themeIcon = document.getElementById('theme-toggle');
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
@@ -57,7 +52,6 @@
             themeIcon.innerText = '🌙';
         }
 
-        // --- LÓGICA DOS DADOS ---
         const params = new URLSearchParams(window.location.search);
         const tipoFiltro = params.get('tipo');
         document.getElementById('titulo').innerText = "Insumo: " + tipoFiltro;
@@ -77,19 +71,20 @@
                 function render(term = '') {
                     container.innerHTML = processedRows
                         .filter(row => {
-                            const cols = row.split(',');
-                            return cols[0].toLowerCase().includes(tipoFiltro.toLowerCase());
+                            // Nova regra que ignora vírgulas dentro do nome do produto
+                            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+                            return cols[0] && cols[0].toLowerCase().includes(tipoFiltro.toLowerCase());
                         })
                         .filter(row => row.toLowerCase().includes(term.toLowerCase()))
                         .map(row => {
-                            const cols = row.split(',');
-                            // Prepara os dados da linha para enviar para a página de detalhes
+                            // Nova regra aplicada aqui também
+                            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
                             const rowData = encodeURIComponent(row);
                             
                             return `<div class="card" onclick="window.location.href='detalhes.html?data=' + '${rowData}'">
                                         <strong>${cols[1]}</strong><br>
                                         Lote: ${cols[4]} | NF: ${cols[3]}<br>
-                                        <span class="${cols[6].toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado'}">${cols[6]}</span>
+                                        <span class="${cols[6] && cols[6].toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado'}">${cols[6] || ''}</span>
                                     </div>`;
                         }).join('');
                 }
