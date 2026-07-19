@@ -75,12 +75,12 @@
         const dataParam = params.get('data');
 
         if (dataParam) {
-            const row = decodeURIComponent(dataParam);
-            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+            // Decodifica a nova estrutura de dados (JSON Array)
+            const cols = JSON.parse(decodeURIComponent(dataParam));
 
             const formatarNumero = (str) => {
-                if (!str) return '-';
-                return /^[0-9.]+$/.test(str.trim()) ? str.replace(/\./g, '') : str;
+                if (!str || str.trim() === '') return '-';
+                return /^[0-9.]+$/.test(str.trim()) ? str.replace(/\./g, '') : str.trim();
             };
 
             const loteLimpo = formatarNumero(cols[4]);
@@ -89,12 +89,13 @@
             const statusTexto = cols[6] ? cols[6].trim() : '';
             const statusClasse = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
 
+            // O style="white-space: pre-wrap;" garante que se houver uma quebra de linha no lote na planilha, ela apareça aqui também!
             document.getElementById('ficha').innerHTML = `
                 <h2>${cols[1] || '-'}</h2>
                 <div class="linha-info"><strong>Tipo de Produto:</strong> ${cols[0] || '-'}</div>
                 <div class="linha-info"><strong>GAR / SKUR:</strong> ${cols[2] || '-'}</div>
                 <div class="linha-info"><strong>Nota Fiscal:</strong> ${nfLimpa}</div>
-                <div class="linha-info"><strong>Lote:</strong> ${loteLimpo}</div>
+                <div class="linha-info" style="white-space: pre-wrap;"><strong>Lote:</strong> ${loteLimpo}</div>
                 <div class="linha-info"><strong>Data de Validade:</strong> ${cols[5] || '-'}</div>
                 <div class="linha-info"><strong>Situação:</strong> <span class="${statusClasse}">${statusTexto || '-'}</span></div>
                 <div class="linha-info"><strong>Observação:</strong> ${cols[7] || 'Nenhuma'}</div>
