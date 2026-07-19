@@ -8,18 +8,39 @@
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; }
         header { background: #F40009; padding: 20px; text-align: center; font-weight: bold; font-size: 22px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .card { background: #1e1e1e; border-radius: 8px; text-align: center; padding: 20px 10px; border: 1px solid #333; cursor: pointer; font-weight: bold; }
+        .card { background: #1e1e1e; border-radius: 8px; text-align: center; padding: 10px; border: 1px solid #333; cursor: pointer; }
+        .card img { width: 80%; height: 80px; object-fit: contain; margin-bottom: 5px; }
+        .card div { font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
     <header>Checkinsumos</header>
     <div class="grid">
-        <div class="card" onclick="window.location.href='lista.html?tipo=Rótulo'">RÓTULO</div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Filme'">FILME DECORADO</div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Lata'">LATA</div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Plástica'">TAMPA PLÁSTICA</div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Rolha'">ROLHA METÁLICA</div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Lata'">TAMPA PARA LATA</div>
+        <!-- Cole o link da imagem no src="..." -->
+        <div class="card" onclick="window.location.href='lista.html?tipo=Rótulo'">
+            <img src="https://drive.google.com/file/d/1TjjSXtysIoRUzf6IThRX9NkQcaSrYzLi/view?usp=sharing" alt="Rótulo">
+            <div>RÓTULO</div>
+        </div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Filme'">
+            <img src="LINK_DA_IMAGEM_FILME" alt="Filme">
+            <div>FILME DECORADO</div>
+        </div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Lata'">
+            <img src="LINK_DA_IMAGEM_LATA" alt="Lata">
+            <div>LATA</div>
+        </div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Plástica'">
+            <img src="LINK_DA_IMAGEM_TAMPA_PLASTICA" alt="Tampa Plástica">
+            <div>TAMPA PLÁSTICA</div>
+        </div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Rolha'">
+            <img src="LINK_DA_IMAGEM_ROLHA" alt="Rolha">
+            <div>ROLHA METÁLICA</div>
+        </div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Lata'">
+            <img src="LINK_DA_IMAGEM_TAMPA_LATA" alt="Tampa Lata">
+            <div>TAMPA PARA LATA</div>
+        </div>
     </div>
 </body>
 </html>
