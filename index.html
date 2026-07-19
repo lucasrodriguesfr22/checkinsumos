@@ -17,11 +17,12 @@
 
         /* Estilos da Busca Global */
         .search-container { padding: 15px 15px 0 15px; }
-        input { width: 100%; padding: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-size: 16px; }
+        input { width: 100%; padding: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-size: 16px; outline: none; }
+        input:focus { border: 1px solid #F40009; }
         
         #global-results { display: none; flex-direction: column; padding: 15px; gap: 10px; }
         
-        /* Layout dos cards de resultado (parecido com a lista) */
+        /* Layout dos cards de resultado */
         .list-card { background: #1e1e1e; padding: 15px; border-radius: 10px; border-left: 5px solid #F40009; cursor: pointer; transition: 0.3s; }
         .list-card:active { transform: scale(0.98); }
         .list-card span.tipo { color: #aaa; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
@@ -52,9 +53,9 @@
         <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </header>
 
-    <!-- Nova Barra de Busca Global -->
+    <!-- Barra de Busca Global -->
     <div class="search-container">
-        <input type="text" id="global-search" placeholder="🔍 Buscar lote, NF ou produto...">
+        <input type="text" id="global-search" placeholder="🔍 Buscar lote, NF ou produto..." autocomplete="off">
     </div>
 
     <!-- Container para mostrar os resultados da busca -->
@@ -107,55 +108,74 @@
         }
 
         // --- LÓGICA DA BUSCA GLOBAL ---
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; // <--- INSIRA O SEU LINK AQUI
+        // ⚠️ ATENÇÃO: COLE O SEU LINK DA PLANILHA NA LINHA ABAIXO! ⚠️
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; 
         
         let todosOsDados = [];
 
-        // Assim que a página abre, ele já baixa a planilha em segundo plano
-        if(CSV_URL !== 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv') {
-            fetch(CSV_URL)
-                .then(res => res.text())
-                .then(data => {
-                    // Pega as linhas, tira cabeçalho e linhas em branco, inverte a ordem
-                    todosOsDados = data.split('\n').slice(1).filter(row => row.trim() !== '').reverse();
-                });
-        }
+        // Inicia o download da planilha assim que o app abre
+        fetch(CSV_URL)
+            .then(res => res.text())
+            .then(data => {
+                todosOsDados = data.split('\n').slice(1).filter(row => row.trim() !== '').reverse();
+            })
+            .catch(err => console.error("Erro ao carregar os dados:", err));
 
         const searchInput = document.getElementById('global-search');
         const resultsContainer = document.getElementById('global-results');
         const menuGrid = document.getElementById('menu-grid');
 
+        // Função para voltar ao menu inicial
+        function restaurarMenu() {
+            searchInput.value = '';
+            resultsContainer.style.display = 'none';
+            menuGrid.style.display = 'grid';
+        }
+
+        // Evento ao digitar na barra de pesquisa
         searchInput.addEventListener('input', (e) => {
             const termoBusca = e.target.value.toLowerCase().trim();
             
-            // Se o usuário apagar o texto, volta a mostrar o menu de botões
             if (termoBusca === '') {
-                resultsContainer.style.display = 'none';
-                menuGrid.style.display = 'grid';
+                restaurarMenu();
                 return;
             }
 
-            // Esconde o menu e mostra a área de resultados
             menuGrid.style.display = 'none';
             resultsContainer.style.display = 'flex';
 
-            // Filtra os dados
+            // Se os dados ainda não terminaram de baixar
+            if (todosOsDados.length === 0) {
+                resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Carregando banco de dados... Aguarde um instante.</div>';
+                return;
+            }
+
             const resultados = todosOsDados.filter(row => row.toLowerCase().includes(termoBusca));
 
             if (resultados.length > 0) {
-                // Monta os cards de resultado limitando a 30 itens para não travar o celular
                 resultsContainer.innerHTML = resultados.slice(0, 30).map(row => {
                     const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
                     const rowData = encodeURIComponent(row);
                     
                     return `<div class="list-card" onclick="window.location.href='detalhes.html?data=' + '${rowData}'">
-                                <span class="tipo">Categoria: ${cols[0]}</span>
-                                <strong>${cols[1]}</strong><br>
-                                Lote: ${cols[4]} | NF: ${cols[3]}
+                                <span class="tipo">Categoria: ${cols[0] || '-'}</span>
+                                <strong>${cols[1] || '-'}</strong><br>
+                                Lote: ${cols[4] || '-'} | NF: ${cols[3] || '-'}
                             </div>`;
                 }).join('');
             } else {
-                resultsContainer.innerHTML = '<div style="text-align:center; margin-top:20px; color:#aaa;">Nenhum insumo encontrado.</div>';
+                resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Nenhum insumo encontrado.</div>';
+            }
+        });
+
+        // --- LÓGICA DE CLICAR FORA ---
+        document.addEventListener('click', (e) => {
+            // Se o menu NÃO estiver visível (ou seja, está na tela de busca)
+            if (menuGrid.style.display === 'none') {
+                // E o clique NÃO foi dentro da barra de pesquisa e NÃO foi dentro dos resultados
+                if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                    restaurarMenu();
+                }
             }
         });
     </script>
