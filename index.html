@@ -11,40 +11,45 @@
         .container { padding: 15px; }
         input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; }
         .card { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid var(--primary); }
-        .status-aprovado { color: #4CAF50; font-weight: bold; }
-        .status-reprovado { color: #f44336; font-weight: bold; }
-        .label { color: #aaa; font-size: 0.8em; }
+        .status { font-weight: bold; }
+        .aprovado { color: #4CAF50; }
+        .reprovado { color: #f44336; }
     </style>
 </head>
 <body>
     <header>Checkinsumos</header>
     <div class="container">
-        <input type="text" id="search" placeholder="🔍 Buscar lote, produto ou nota...">
+        <input type="text" id="search" placeholder="🔍 Buscar por lote, produto ou nota...">
         <div id="results"></div>
     </div>
 
     <script>
-        // Substitua o link abaixo pelo link do seu CSV publicado
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv';
 
         fetch(CSV_URL)
             .then(res => res.text())
             .then(data => {
-                const lines = data.split('\n').slice(1); // Ignora cabeçalho
+                const rows = data.split('\n').filter(row => row.trim() !== '').slice(1);
                 const container = document.getElementById('results');
                 const search = document.getElementById('search');
 
                 function render(term = '') {
-                    container.innerHTML = lines.filter(row => row.toLowerCase().includes(term.toLowerCase())).map(row => {
+                    container.innerHTML = rows.filter(row => row.toLowerCase().includes(term.toLowerCase())).map(row => {
                         const cols = row.split(',');
-                        if(cols.length < 8) return '';
-                        const statusClass = cols[6].toLowerCase().includes('aprovado') ? 'status-aprovado' : 'status-reprovado';
+                        // Validação: Garante que temos pelo menos as colunas necessárias
+                        const tipo = cols[0] || 'Insumo';
+                        const prod = cols[1] || 'Produto não listado';
+                        const nf = cols[3] || 'N/A';
+                        const lote = cols[4] || 'N/A';
+                        const status = cols[6] || 'Pendente';
+                        const statusClass = status.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
+
                         return `
                             <div class="card">
-                                <div class="label">${cols[0]}</div>
-                                <strong>${cols[1]}</strong><br>
-                                Lote: ${cols[4]} | NF: ${cols[3]}<br>
-                                <span class="${statusClass}">${cols[6]}</span>
+                                <small style="color: #888;">${tipo}</small><br>
+                                <strong>${prod}</strong><br>
+                                Lote: ${lote} | NF: ${nf}<br>
+                                <span class="status ${statusClass}">${status}</span>
                             </div>`;
                     }).join('');
                 }
