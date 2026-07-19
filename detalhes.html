@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Insumo</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
+        
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        button { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
+        .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
+
+        /* Estilo da Ficha de Detalhes */
+        .detalhes-container { background: #1e1e1e; padding: 20px; border-radius: 12px; border-top: 6px solid #F40009; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: background 0.3s, color 0.3s; }
+        .detalhes-container h2 { margin-top: 0; margin-bottom: 20px; font-size: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .linha-info { margin-bottom: 15px; font-size: 16px; line-height: 1.4; }
+        .linha-info strong { color: #aaa; display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 2px; }
+        
+        .aprovado { color: #4CAF50; font-weight: bold; }
+        .reprovado { color: #f44336; font-weight: bold; }
+
+        /* Modo Claro */
+        body.light-mode { background: #f4f4f4; color: #121212; }
+        body.light-mode button { background: #ddd; color: #121212; }
+        body.light-mode .detalhes-container { background: #ffffff; border: 1px solid #ccc; border-top: 6px solid #F40009; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        body.light-mode .detalhes-container h2 { border-bottom: 1px solid #ccc; }
+        body.light-mode .linha-info strong { color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header-top">
+        <button onclick="history.back()">⬅ Voltar</button>
+        <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
+    </div>
+
+    <div class="detalhes-container" id="ficha">
+        <!-- Os dados vão aparecer aqui -->
+    </div>
+
+    <script>
+        // --- LÓGICA DO TEMA ---
+        const themeIcon = document.getElementById('theme-toggle');
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            if (document.body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                themeIcon.innerText = '🌙';
+            } else {
+                localStorage.setItem('theme', 'dark');
+                themeIcon.innerText = '☀️';
+            }
+        }
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            themeIcon.innerText = '🌙';
+        }
+
+        // --- LÓGICA DE EXIBIR OS DETALHES ---
+        // Pega os dados enviados pela URL e decodifica
+        const params = new URLSearchParams(window.location.search);
+        const dataParam = params.get('data');
+
+        if (dataParam) {
+            const row = decodeURIComponent(dataParam);
+            const cols = row.split(',');
+
+            // Determina a cor do status
+            const statusTexto = cols[6] ? cols[6].trim() : '';
+            const statusClasse = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
+
+            // Monta a ficha com as 8 colunas da sua BASE GERAL
+            document.getElementById('ficha').innerHTML = `
+                <h2>${cols[1] || '-'}</h2>
+                <div class="linha-info"><strong>Tipo de Produto:</strong> ${cols[0] || '-'}</div>
+                <div class="linha-info"><strong>GAR / SKUR:</strong> ${cols[2] || '-'}</div>
+                <div class="linha-info"><strong>Nota Fiscal:</strong> ${cols[3] || '-'}</div>
+                <div class="linha-info"><strong>Lote:</strong> ${cols[4] || '-'}</div>
+                <div class="linha-info"><strong>Data de Validade:</strong> ${cols[5] || '-'}</div>
+                <div class="linha-info"><strong>Situação:</strong> <span class="${statusClasse}">${statusTexto || '-'}</span></div>
+                <div class="linha-info"><strong>Observação:</strong> ${cols[7] || 'Nenhuma'}</div>
+            `;
+        } else {
+            document.getElementById('ficha').innerHTML = `<h2>Erro ao carregar dados.</h2>`;
+        }
+    </script>
+</body>
+</html>
