@@ -58,7 +58,6 @@
         const dataParam = params.get('data');
 
         if (dataParam) {
-            // Agora o detalhe recebe um array de colunas puras e limpas, sem precisar "adivinhar" o texto
             const cols = JSON.parse(decodeURIComponent(dataParam));
 
             const nfLimpa = cols[3] || '-';
