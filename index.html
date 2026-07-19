@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkinsumos</title>
+    
+    <!-- ÍCONES DO NAVEGADOR E DO CELULAR -->
+    <link rel="icon" type="image/png" href="COLE_AQUI_O_LINK_DO_SEU_ICONE">
+    <link rel="apple-touch-icon" href="COLE_AQUI_O_LINK_DO_SEU_ICONE">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; transition: background 0.3s, color 0.3s; }
         
@@ -12,6 +19,7 @@
             position: relative; display: flex; justify-content: center; align-items: center;
         }
         
+        .header-logo { position: absolute; left: 20px; height: 35px; border-radius: 8px; object-fit: contain; }
         .theme-icon { position: absolute; right: 20px; font-size: 24px; cursor: pointer; user-select: none; }
 
         .search-container { padding: 15px 15px 0 15px; }
@@ -44,6 +52,7 @@
 </head>
 <body>
     <header>
+        <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" class="header-logo" alt="Logo">
         Checkinsumos
         <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </header>
@@ -98,7 +107,7 @@
             themeIcon.innerText = '🌙';
         }
 
-        // COLE O SEU LINK DA PLANILHA NA LINHA ABAIXO
+        // ⚠️ ATENÇÃO: COLE O SEU LINK DA PLANILHA NA LINHA ABAIXO ⚠️
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; 
         
         let todosOsDados = [];
@@ -121,7 +130,6 @@
         }
 
         searchInput.addEventListener('input', (e) => {
-            // Nova lógica: remove espaços, pontos, traços e barras do termo digitado
             const termoBusca = e.target.value.toLowerCase().replace(/[.\-\s/]/g, '');
             
             if (termoBusca === '') {
@@ -137,7 +145,6 @@
                 return;
             }
 
-            // Nova lógica: remove os mesmos caracteres da linha da planilha antes de comparar
             const resultados = todosOsDados.filter(row => {
                 const linhaLimpa = row.toLowerCase().replace(/[.\-\s/]/g, '');
                 return linhaLimpa.includes(termoBusca);
@@ -148,7 +155,6 @@
                     const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
                     const rowData = encodeURIComponent(row);
                     
-                    // Remove pontos visualmente do Lote e NF
                     const loteLimpo = cols[4] ? cols[4].replace(/\./g, '') : '-';
                     const nfLimpa = cols[3] ? cols[3].replace(/\./g, '') : '-';
                     

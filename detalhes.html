@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes do Insumo</title>
+
+    <!-- ÍCONES DO NAVEGADOR E DO CELULAR -->
+    <link rel="icon" type="image/png" href="COLE_AQUI_O_LINK_DO_SEU_ICONE">
+    <link rel="apple-touch-icon" href="COLE_AQUI_O_LINK_DO_SEU_ICONE">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -13,6 +17,7 @@
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
+        .header-logo { height: 35px; border-radius: 8px; object-fit: contain; }
 
         .detalhes-container { background: #1e1e1e; padding: 20px; border-radius: 12px; border-top: 6px solid #F40009; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: background 0.3s, color 0.3s; }
         .detalhes-container h2 { margin-top: 0; margin-bottom: 20px; font-size: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
@@ -38,6 +43,7 @@
 <body>
     <div class="header-top">
         <button class="btn-voltar" onclick="history.back()">⬅ Voltar</button>
+        <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" class="header-logo" alt="Logo">
         <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </div>
 
@@ -73,7 +79,6 @@
             const row = decodeURIComponent(dataParam);
             const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
 
-            // Remove pontos visualmente do Lote e NF
             const loteLimpo = cols[4] ? cols[4].replace(/\./g, '') : '-';
             const nfLimpa = cols[3] ? cols[3].replace(/\./g, '') : '-';
 
