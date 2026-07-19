@@ -50,7 +50,6 @@
     </button>
 
     <script>
-        // --- LÓGICA DO TEMA ---
         const themeIcon = document.getElementById('theme-toggle');
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
@@ -67,13 +66,14 @@
             themeIcon.innerText = '🌙';
         }
 
-        // --- LÓGICA DE EXIBIR OS DETALHES ---
         const params = new URLSearchParams(window.location.search);
         const dataParam = params.get('data');
 
         if (dataParam) {
             const row = decodeURIComponent(dataParam);
-            const cols = row.split(',');
+            
+            // Nova regra que ignora vírgulas e remove aspas da planilha
+            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
 
             const statusTexto = cols[6] ? cols[6].trim() : '';
             const statusClasse = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
@@ -94,7 +94,6 @@
             document.getElementById('ficha').innerHTML = `<h2>Erro ao carregar dados.</h2>`;
         }
 
-        // --- LÓGICA DE GERAR IMAGEM E COMPARTILHAR ---
         async function compartilharFicha() {
             const btn = document.getElementById('btn-share');
             const originalText = btn.innerHTML;
@@ -112,11 +111,9 @@
                     scale: 2 
                 });
                 
-                // Converte o canvas para imagem base64 (mais rápido e seguro no iOS)
                 const imgData = canvas.toDataURL('image/png');
                 
                 try {
-                    // Tenta o compartilhamento nativo moderno primeiro
                     const blob = await (await fetch(imgData)).blob();
                     const file = new File([blob], 'ficha-insumo.png', { type: 'image/png' });
                     
@@ -125,23 +122,19 @@
                             files: [file],
                             title: 'Ficha de Insumo'
                         });
-                        // Se deu certo, restaura o botão
                         btn.innerHTML = originalText;
                         btn.style.opacity = '1';
                         btn.disabled = false;
                     } else {
-                        // Força o erro para cair no plano B do iPhone
                         throw new Error('Navegador não suporta Web Share');
                     }
                 } catch (shareError) {
-                    // PLANO B PARA IPHONE (E PC): Substitui a ficha pela foto gerada
                     ficha.innerHTML = `
                         <div style="background: #ffeb3b; color: #000; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-size: 14px; font-weight: bold;">
                             📱 Pressione e segure a imagem abaixo para Copiar ou Compartilhar!
                         </div>
                         <img src="${imgData}" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
                     `;
-                    // Esconde o botão porque a imagem já está pronta para o usuário
                     btn.style.display = 'none'; 
                 }
                 
