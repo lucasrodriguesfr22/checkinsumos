@@ -71,9 +71,11 @@
 
         if (dataParam) {
             const row = decodeURIComponent(dataParam);
-            
-            // Nova regra que ignora vírgulas e remove aspas da planilha
             const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+
+            // Remove pontos visualmente do Lote e NF
+            const loteLimpo = cols[4] ? cols[4].replace(/\./g, '') : '-';
+            const nfLimpa = cols[3] ? cols[3].replace(/\./g, '') : '-';
 
             const statusTexto = cols[6] ? cols[6].trim() : '';
             const statusClasse = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
@@ -82,8 +84,8 @@
                 <h2>${cols[1] || '-'}</h2>
                 <div class="linha-info"><strong>Tipo de Produto:</strong> ${cols[0] || '-'}</div>
                 <div class="linha-info"><strong>GAR / SKUR:</strong> ${cols[2] || '-'}</div>
-                <div class="linha-info"><strong>Nota Fiscal:</strong> ${cols[3] || '-'}</div>
-                <div class="linha-info"><strong>Lote:</strong> ${cols[4] || '-'}</div>
+                <div class="linha-info"><strong>Nota Fiscal:</strong> ${nfLimpa}</div>
+                <div class="linha-info"><strong>Lote:</strong> ${loteLimpo}</div>
                 <div class="linha-info"><strong>Data de Validade:</strong> ${cols[5] || '-'}</div>
                 <div class="linha-info"><strong>Situação:</strong> <span class="${statusClasse}">${statusTexto || '-'}</span></div>
                 <div class="linha-info"><strong>Observação:</strong> ${cols[7] || 'Nenhuma'}</div>
