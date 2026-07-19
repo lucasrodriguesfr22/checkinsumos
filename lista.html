@@ -71,13 +71,27 @@
                 function render(term = '') {
                     container.innerHTML = processedRows
                         .filter(row => {
-                            // Nova regra que ignora vírgulas dentro do nome do produto
                             const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                            return cols[0] && cols[0].toLowerCase().includes(tipoFiltro.toLowerCase());
+                            if (!cols[0]) return false;
+
+                            const tipoProdutoPlanilha = cols[0].toLowerCase();
+                            const filtroEscolhido = tipoFiltro.toLowerCase();
+
+                            // Regra 1: Se clicou em LATA, puxa o que tem 'lata' mas EXCLUI o que tem 'tampa'
+                            if (filtroEscolhido === 'lata') {
+                                return tipoProdutoPlanilha.includes('lata') && !tipoProdutoPlanilha.includes('tampa');
+                            }
+
+                            // Regra 2: Se clicou em TAMPA LATA, exige que tenha 'tampa' E 'lata' juntos na célula
+                            if (filtroEscolhido === 'tampa lata' || filtroEscolhido === 'tampa para lata') {
+                                return tipoProdutoPlanilha.includes('tampa') && tipoProdutoPlanilha.includes('lata');
+                            }
+
+                            // Regra Padrão para os demais insumos (Rótulo, Filme, Rolha, Tampa Plástica)
+                            return tipoProdutoPlanilha.includes(filtroEscolhido);
                         })
                         .filter(row => row.toLowerCase().includes(term.toLowerCase()))
                         .map(row => {
-                            // Nova regra aplicada aqui também
                             const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
                             const rowData = encodeURIComponent(row);
                             
