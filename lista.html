@@ -9,25 +9,17 @@
     <link rel="apple-touch-icon" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
 
     <style>
-        /* Importando a Fonte Estilo Coca-Cola */
-        @import url('https://fonts.cdnfonts.com/css/loki-cola');
-
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
         input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-size: 16px; outline: none; }
         input:focus { border: 1px solid #F40009; }
-        
         .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; cursor: pointer; transition: background 0.3s, color 0.3s, transform 0.1s; }
         .card:active { transform: scale(0.98); } 
         .aprovado { color: #4CAF50; font-weight: bold; }
         .reprovado { color: #f44336; font-weight: bold; }
         button { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
-        
-        /* Nova Barra do Topo */
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .brand-title { font-family: 'Loki Cola', sans-serif; font-size: 32px; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; color: #F40009; }
-        .brand-title img { height: 32px; border-radius: 6px; object-fit: contain; }
-        .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; font-family: sans-serif;}
-        
+        .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
+        .header-logo { height: 35px; border-radius: 8px; object-fit: contain; }
         body.light-mode { background: #f4f4f4; color: #121212; }
         body.light-mode .card { background: #ffffff; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-right: 1px solid #ccc; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
         body.light-mode input { background: #ffffff; color: #121212; border: 1px solid #ccc; }
@@ -37,10 +29,7 @@
 <body>
     <div class="header-top">
         <button onclick="history.back()">⬅ Voltar</button>
-        <div class="brand-title">
-            <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" alt="Logo">
-            Checkinsumos
-        </div>
+        <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" class="header-logo" alt="Logo">
         <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </div>
     
@@ -67,15 +56,20 @@
         function lerCSV(texto) {
             let linhas = [], celula = "", emAspas = false, linhaAtual = [];
             for (let i = 0; i < texto.length; i++) {
-                let char = texto[i], prox = texto[i+1];
-                if (char === '"' && emAspas && prox === '"') { celula += '"'; i++; }
-                else if (char === '"') emAspas = !emAspas;
-                else if (char === ',' && !emAspas) { linhaAtual.push(celula.trim()); celula = ""; }
-                else if (char === '\n' && !emAspas) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); linhaAtual = []; celula = ""; }
-                else if (char !== '\r') celula += char;
+                let char = texto[i];
+                if (emAspas) {
+                    if (char === '"' && i + 1 < texto.length && texto[i + 1] === '"') { celula += '"'; i++; } 
+                    else if (char === '"') { emAspas = false; } 
+                    else { celula += char; }
+                } else {
+                    if (char === '"') { emAspas = true; } 
+                    else if (char === ',') { linhaAtual.push(celula.trim()); celula = ""; } 
+                    else if (char === '\n') { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); linhaAtual = []; celula = ""; } 
+                    else if (char !== '\r') { celula += char; }
+                }
             }
             if (celula || linhaAtual.length > 0) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); }
-            return linhas.slice(1);
+            return linhas.slice(1).filter(l => l.length > 3);
         }
 
         fetch(CSV_URL).then(res => res.text()).then(data => {
@@ -85,10 +79,12 @@
 
             function render(term = '') {
                 const termoLimpo = term.toLowerCase().replace(/[.\-\s/]/g, '');
+
                 container.innerHTML = processedRows.filter(cols => {
                     if (!cols[0]) return false;
                     const tipoProdutoPlanilha = cols[0].toLowerCase();
                     const filtroEscolhido = tipoFiltro.toLowerCase();
+
                     if (filtroEscolhido === 'lata') return tipoProdutoPlanilha.includes('lata') && !tipoProdutoPlanilha.includes('tampa');
                     if (filtroEscolhido === 'tampa lata' || filtroEscolhido === 'tampa para lata') return tipoProdutoPlanilha.includes('tampa') && tipoProdutoPlanilha.includes('lata');
                     return tipoProdutoPlanilha.includes(filtroEscolhido);
@@ -96,8 +92,10 @@
                     const linhaLimpa = cols.join(' ').toLowerCase().replace(/[.\-\s/]/g, '');
                     return linhaLimpa.includes(termoLimpo);
                 }).map(cols => {
-                    const rowData = encodeURIComponent(JSON.stringify(cols)).replace(/'/g, "%27");
-                    const nfLimpa = cols[3] || '-'; const loteLimpo = cols[4] || '-';
+                    const rowData = encodeURIComponent(JSON.stringify(cols));
+                    
+                    const nfLimpa = cols[3] || '-';
+                    const loteLimpo = cols[4] || '-';
                     const statusTexto = cols[6] ? cols[6].trim() : '';
                     const classeStatus = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
 
