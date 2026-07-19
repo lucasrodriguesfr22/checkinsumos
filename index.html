@@ -5,158 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkinsumos</title>
     
-    <!-- Ícones -->
     <link rel="icon" type="image/png" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
     <link rel="apple-touch-icon" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <!-- Biblioteca Profissional para Ler a Planilha (PapaParse) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
     <style>
-        /* Estilos Globais */
-        body { 
-            font-family: sans-serif; 
-            background: #121212; 
-            color: white; 
-            margin: 0; 
-            transition: background 0.3s, color 0.3s; 
-        }
-        
-        /* Cabeçalho */
-        header { 
-            background: #F40009; 
-            padding: 20px; 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 22px; 
-            position: relative; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-        }
-        .header-logo { 
-            position: absolute; 
-            left: 20px; 
-            height: 35px; 
-            border-radius: 8px; 
-            object-fit: contain; 
-        }
-        .theme-icon { 
-            position: absolute; 
-            right: 20px; 
-            font-size: 24px; 
-            cursor: pointer; 
-            user-select: none; 
-        }
-
-        /* Barra de Pesquisa */
-        .search-container { 
-            padding: 15px 15px 0 15px; 
-        }
-        input { 
-            width: 100%; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: none; 
-            background: #333; 
-            color: white; 
-            box-sizing: border-box; 
-            transition: background 0.3s, color 0.3s; 
-            font-size: 16px; 
-            outline: none; 
-        }
-        input:focus { 
-            border: 1px solid #F40009; 
-        }
-
-        /* Resultados da Busca */
-        #global-results { 
-            display: none; 
-            flex-direction: column; 
-            padding: 15px; 
-            gap: 10px; 
-        }
-        .list-card { 
-            background: #1e1e1e; 
-            padding: 15px; 
-            border-radius: 10px; 
-            border-left: 5px solid #F40009; 
-            cursor: pointer; 
-            transition: 0.3s; 
-        }
-        .list-card:active { 
-            transform: scale(0.98); 
-        }
-        .list-card span.tipo { 
-            color: #aaa; 
-            font-size: 12px; 
-            text-transform: uppercase; 
-            display: block; 
-            margin-bottom: 5px; 
-        }
-
-        /* Menu Principal (Grid) */
-        .grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 15px; 
-            padding: 15px; 
-        }
-        .card { 
-            background: #1e1e1e; 
-            border-radius: 12px; 
-            text-align: center; 
-            padding: 15px; 
-            border: 1px solid #333; 
-            cursor: pointer; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            transition: background 0.3s, border 0.3s, color 0.3s; 
-        }
-        .card img { 
-            width: 90px; 
-            height: 90px; 
-            object-fit: contain; 
-            margin-bottom: 10px; 
-            background-color: transparent; 
-        }
-        .card div { 
-            font-weight: bold; 
-            font-size: 13px; 
-            margin-top: 5px; 
-        }
-
-        /* Tema Claro */
-        body.light-mode { 
-            background: #f4f4f4; 
-            color: #121212; 
-        }
-        body.light-mode .card, 
-        body.light-mode .list-card { 
-            background: #ffffff; 
-            border: 1px solid #ccc; 
-            color: #121212; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-        }
-        body.light-mode .list-card { 
-            border-left: 5px solid #F40009; 
-        }
-        body.light-mode input { 
-            background: #ffffff; 
-            color: #121212; 
-            border: 1px solid #ccc; 
-        }
-        body.light-mode .list-card span.tipo { 
-            color: #666; 
-        }
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; transition: background 0.3s, color 0.3s; }
+        header { background: #F40009; padding: 20px; text-align: center; font-weight: bold; font-size: 22px; position: relative; display: flex; justify-content: center; align-items: center; }
+        .header-logo { position: absolute; left: 20px; height: 35px; border-radius: 8px; object-fit: contain; }
+        .theme-icon { position: absolute; right: 20px; font-size: 24px; cursor: pointer; user-select: none; }
+        .search-container { padding: 15px 15px 0 15px; }
+        input { width: 100%; padding: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-size: 16px; outline: none; }
+        input:focus { border: 1px solid #F40009; }
+        #global-results { display: none; flex-direction: column; padding: 15px; gap: 10px; }
+        .list-card { background: #1e1e1e; padding: 15px; border-radius: 10px; border-left: 5px solid #F40009; cursor: pointer; transition: 0.3s; }
+        .list-card:active { transform: scale(0.98); }
+        .list-card span.tipo { color: #aaa; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        .card { background: #1e1e1e; border-radius: 12px; text-align: center; padding: 15px; border: 1px solid #333; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: background 0.3s, border 0.3s, color 0.3s; }
+        .card img { width: 90px; height: 90px; object-fit: contain; margin-bottom: 10px; background-color: transparent; }
+        .card div { font-weight: bold; font-size: 13px; margin-top: 5px; }
+        body.light-mode { background: #f4f4f4; color: #121212; }
+        body.light-mode .card, body.light-mode .list-card { background: #ffffff; border: 1px solid #ccc; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        body.light-mode .list-card { border-left: 5px solid #F40009; }
+        body.light-mode input { background: #ffffff; color: #121212; border: 1px solid #ccc; }
+        body.light-mode .list-card span.tipo { color: #666; }
     </style>
 </head>
 <body>
-
     <header>
         <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" class="header-logo" alt="Logo">
         Checkinsumos
@@ -170,115 +47,69 @@
     <div id="global-results"></div>
 
     <div class="grid" id="menu-grid">
-        <div class="card" onclick="window.location.href='lista.html?tipo=Rótulo'">
-            <img src="https://i.ibb.co/qYKFTNrp/rotulo-foto.webp" alt="Rótulo">
-            <div>RÓTULO</div>
-        </div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Filme'">
-            <img src="https://i.ibb.co/JRvk2kds/foto-filme-decorado.webp" alt="Filme">
-            <div>FILME DECORADO</div>
-        </div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Lata'">
-            <img src="https://i.ibb.co/23wS70YF/lata-foto.jpg" alt="Lata">
-            <div>LATA</div>
-        </div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Plástica'">
-            <img src="https://i.ibb.co/Xr6phwX6/foto-tampa-plastica.jpg" alt="Tampa Plástica">
-            <div>TAMPA PLÁSTICA</div>
-        </div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Rolha'">
-            <img src="https://i.ibb.co/7NWCVYmm/rolha.webp" alt="Rolha">
-            <div>ROLHA METÁLICA</div>
-        </div>
-        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Lata'">
-            <img src="https://i.ibb.co/JW34cP24/tampa-lata.jpg" alt="Tampa Lata">
-            <div>TAMPA PARA LATA</div>
-        </div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Rótulo'"><img src="https://i.ibb.co/qYKFTNrp/rotulo-foto.webp" alt="Rótulo"><div>RÓTULO</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Filme'"><img src="https://i.ibb.co/JRvk2kds/foto-filme-decorado.webp" alt="Filme"><div>FILME DECORADO</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Lata'"><img src="https://i.ibb.co/23wS70YF/lata-foto.jpg" alt="Lata"><div>LATA</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Plástica'"><img src="https://i.ibb.co/Xr6phwX6/foto-tampa-plastica.jpg" alt="Tampa Plástica"><div>TAMPA PLÁSTICA</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Rolha'"><img src="https://i.ibb.co/7NWCVYmm/rolha.webp" alt="Rolha"><div>ROLHA METÁLICA</div></div>
+        <div class="card" onclick="window.location.href='lista.html?tipo=Tampa Lata'"><img src="https://i.ibb.co/JW34cP24/tampa-lata.jpg" alt="Tampa Lata"><div>TAMPA PARA LATA</div></div>
     </div>
 
     <script>
-        // --- 1. Lógica do Tema Claro/Escuro ---
         const themeIcon = document.getElementById('theme-toggle');
-        
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
-            if (document.body.classList.contains('light-mode')) { 
-                localStorage.setItem('theme', 'light'); 
-                themeIcon.innerText = '🌙'; 
-            } else { 
-                localStorage.setItem('theme', 'dark'); 
-                themeIcon.innerText = '☀️'; 
-            }
+            if (document.body.classList.contains('light-mode')) { localStorage.setItem('theme', 'light'); themeIcon.innerText = '🌙'; } 
+            else { localStorage.setItem('theme', 'dark'); themeIcon.innerText = '☀️'; }
         }
+        if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); themeIcon.innerText = '🌙'; }
 
-        if (localStorage.getItem('theme') === 'light') { 
-            document.body.classList.add('light-mode'); 
-            themeIcon.innerText = '🌙'; 
-        }
-
-        // --- 2. Link do Banco de Dados ---
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; 
         let todosOsDados = [];
 
-        // --- 3. Leitura dos Dados com PapaParse ---
-        fetch(CSV_URL + '&nocache=' + new Date().getTime())
-            .then(res => res.text())
-            .then(csvText => {
-                const result = Papa.parse(csvText);
-                todosOsDados = result.data.filter(row => row.length > 5).slice(1).reverse();
-            });
+        // Leitor Nativo Blindado (Sem bibliotecas externas)
+        function lerCSV(texto) {
+            let linhas = [], celula = "", emAspas = false, linhaAtual = [];
+            for (let i = 0; i < texto.length; i++) {
+                let char = texto[i], prox = texto[i+1];
+                if (char === '"' && emAspas && prox === '"') { celula += '"'; i++; }
+                else if (char === '"') emAspas = !emAspas;
+                else if (char === ',' && !emAspas) { linhaAtual.push(celula.trim()); celula = ""; }
+                else if (char === '\n' && !emAspas) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); linhaAtual = []; celula = ""; }
+                else if (char !== '\r') celula += char;
+            }
+            if (celula || linhaAtual.length > 0) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); }
+            return linhas.slice(1);
+        }
 
-        // --- 4. Lógica de Pesquisa Global ---
+        fetch(CSV_URL + '&nocache=' + new Date().getTime()).then(res => res.text()).then(data => { todosOsDados = lerCSV(data).reverse(); });
+
         const searchInput = document.getElementById('global-search');
         const resultsContainer = document.getElementById('global-results');
         const menuGrid = document.getElementById('menu-grid');
 
-        function restaurarMenu() { 
-            searchInput.value = ''; 
-            resultsContainer.style.display = 'none'; 
-            menuGrid.style.display = 'grid'; 
-        }
+        function restaurarMenu() { searchInput.value = ''; resultsContainer.style.display = 'none'; menuGrid.style.display = 'grid'; }
 
         searchInput.addEventListener('input', (e) => {
             const termoBusca = e.target.value.toLowerCase().trim();
-            
-            if (termoBusca === '') { 
-                restaurarMenu(); 
-                return; 
-            }
-            
-            menuGrid.style.display = 'none'; 
-            resultsContainer.style.display = 'flex';
-            
-            if (todosOsDados.length === 0) { 
-                resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Carregando...</div>'; 
-                return; 
-            }
+            if (termoBusca === '') { restaurarMenu(); return; }
+            menuGrid.style.display = 'none'; resultsContainer.style.display = 'flex';
+            if (todosOsDados.length === 0) { resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Carregando...</div>'; return; }
 
             const resultados = todosOsDados.filter(cols => cols.join(' ').toLowerCase().includes(termoBusca));
-            
             if (resultados.length > 0) {
                 resultsContainer.innerHTML = resultados.slice(0, 30).map(cols => {
-                    const rowData = encodeURIComponent(JSON.stringify(cols));
-                    return `
-                        <div class="list-card" onclick="window.location.href='detalhes.html?data=${rowData}'">
-                            <span class="tipo">Categoria: ${cols[0] || '-'}</span>
-                            <strong>${cols[1] || '-'}</strong><br>
-                            Lote: ${cols[8] || '-'} | NF: ${cols[7] || '-'}
-                        </div>
-                    `;
+                    const rowData = encodeURIComponent(JSON.stringify(cols)).replace(/'/g, "%27");
+                    return `<div class="list-card" onclick="window.location.href='detalhes.html?data=' + '${rowData}'">
+                                <span class="tipo">Categoria: ${cols[0] || '-'}</span>
+                                <strong>${cols[1] || '-'}</strong><br>
+                                Lote: ${cols[8] || '-'} | NF: ${cols[7] || '-'}
+                            </div>`;
                 }).join('');
-            } else { 
-                resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Nenhum insumo encontrado.</div>'; 
-            }
+            } else { resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Nenhum insumo encontrado.</div>'; }
         });
 
-        // Restaura o menu se clicar fora da pesquisa
-        document.addEventListener('click', (e) => { 
-            if (menuGrid.style.display === 'none' && !searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
-                restaurarMenu(); 
-            }
-        });
+        document.addEventListener('click', (e) => { if (menuGrid.style.display === 'none' && !searchInput.contains(e.target) && !resultsContainer.contains(e.target)) restaurarMenu(); });
     </script>
 </body>
 </html>
