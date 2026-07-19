@@ -11,19 +11,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
+        /* Importando a Fonte Estilo Coca-Cola */
+        @import url('https://fonts.cdnfonts.com/css/loki-cola');
+
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
+        
+        /* Nova Barra do Topo */
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .brand-title { font-family: 'Loki Cola', sans-serif; font-size: 32px; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; color: #F40009; }
+        .brand-title img { height: 32px; border-radius: 6px; object-fit: contain; }
         .btn-voltar { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
-        .header-logo { height: 35px; border-radius: 8px; object-fit: contain; }
+        .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; font-family: sans-serif; }
+
         .detalhes-container { background: #1e1e1e; padding: 20px; border-radius: 12px; border-top: 6px solid #F40009; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: background 0.3s, color 0.3s; }
         .detalhes-container h2 { margin-top: 0; margin-bottom: 20px; font-size: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .linha-info { margin-bottom: 15px; font-size: 16px; line-height: 1.4; }
         .linha-info strong { color: #aaa; display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 2px; }
         .aprovado { color: #4CAF50; font-weight: bold; }
         .reprovado { color: #f44336; font-weight: bold; }
+        
         .btn-share { width: 100%; background: #25D366; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; display: none; justify-content: center; align-items: center; gap: 10px; transition: 0.3s; }
         .btn-share:active { transform: scale(0.98); }
+        
         body.light-mode { background: #f4f4f4; color: #121212; }
         body.light-mode .btn-voltar { background: #ddd; color: #121212; }
         body.light-mode .detalhes-container { background: #ffffff; border: 1px solid #ccc; border-top: 6px solid #F40009; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -35,7 +44,10 @@
 <body>
     <div class="header-top">
         <button class="btn-voltar" onclick="history.back()">⬅ Voltar</button>
-        <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" class="header-logo" alt="Logo">
+        <div class="brand-title">
+            <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" alt="Logo">
+            Checkinsumos
+        </div>
         <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </div>
 
@@ -71,12 +83,11 @@
                 <div class="linha-info"><strong>Tipo de Produto:</strong> ${cols[0] || '-'}</div>
                 <div class="linha-info"><strong>GAR / SKUR:</strong> ${cols[2] || '-'}</div>
                 <div class="linha-info"><strong>Nota Fiscal:</strong> ${nfLimpa}</div>
-                <div class="linha-info"><strong>Lote:</strong> ${loteLimpo}</div>
+                <div class="linha-info" style="white-space: pre-wrap;"><strong>Lote:</strong> ${loteLimpo}</div>
                 <div class="linha-info"><strong>Data de Validade:</strong> ${cols[5] || '-'}</div>
                 <div class="linha-info"><strong>Situação:</strong> <span class="${statusClasse}">${statusTexto || '-'}</span></div>
                 <div class="linha-info"><strong>Observação:</strong> ${cols[7] || 'Nenhuma'}</div>
             `;
-            
             document.getElementById('btn-share').style.display = 'flex';
         } else {
             document.getElementById('ficha').innerHTML = `<h2>Erro ao carregar dados.</h2>`;
