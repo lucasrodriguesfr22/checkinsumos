@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta</title>
 
-    <!-- ÍCONES DO NAVEGADOR E DO CELULAR -->
-    <link rel="icon" type="image/png" href="COLE_AQUI_O_LINK_DO_SEU_ICONE">
-    <link rel="apple-touch-icon" href="COLE_AQUI_O_LINK_DO_SEU_ICONE">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
 
     <style>
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
@@ -63,7 +62,6 @@
         const tipoFiltro = params.get('tipo');
         document.getElementById('titulo').innerText = "Insumo: " + tipoFiltro;
 
-        // ⚠️ ATENÇÃO: COLE O SEU LINK DA PLANILHA NA LINHA ABAIXO ⚠️
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv'; 
 
         fetch(CSV_URL)
@@ -102,8 +100,13 @@
                             const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
                             const rowData = encodeURIComponent(row);
                             
-                            const loteLimpo = cols[4] ? cols[4].replace(/\./g, '') : '-';
-                            const nfLimpa = cols[3] ? cols[3].replace(/\./g, '') : '-';
+                            const formatarNumero = (str) => {
+                                if (!str) return '-';
+                                return /^[0-9.]+$/.test(str.trim()) ? str.replace(/\./g, '') : str;
+                            };
+
+                            const loteLimpo = formatarNumero(cols[4]);
+                            const nfLimpa = formatarNumero(cols[3]);
                             
                             return `<div class="card" onclick="window.location.href='detalhes.html?data=' + '${rowData}'">
                                         <strong>${cols[1]}</strong><br>
