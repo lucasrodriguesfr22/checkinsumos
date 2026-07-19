@@ -8,7 +8,11 @@
         /* Estilos base */
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
         input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
-        .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; transition: background 0.3s, color 0.3s; }
+        
+        /* Efeito de clique no card */
+        .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #F40009; cursor: pointer; transition: background 0.3s, color 0.3s, transform 0.1s; }
+        .card:active { transform: scale(0.98); } /* Dá um efeitinho de afundar ao clicar */
+        
         .aprovado { color: #4CAF50; font-weight: bold; }
         .reprovado { color: #f44336; font-weight: bold; }
         
@@ -28,7 +32,6 @@
 <body>
     <div class="header-top">
         <button onclick="history.back()">⬅ Voltar</button>
-        <!-- Apenas o ícone aqui também -->
         <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </div>
     
@@ -37,9 +40,8 @@
     <div id="results"></div>
 
     <script>
-        // --- LÓGICA DO TEMA (CLARO/ESCURO) ---
+        // --- LÓGICA DO TEMA ---
         const themeIcon = document.getElementById('theme-toggle');
-
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
             if (document.body.classList.contains('light-mode')) {
@@ -50,13 +52,12 @@
                 themeIcon.innerText = '☀️';
             }
         }
-
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('light-mode');
             themeIcon.innerText = '🌙';
         }
 
-        // --- LÓGICA DOS DADOS E PESQUISA ---
+        // --- LÓGICA DOS DADOS ---
         const params = new URLSearchParams(window.location.search);
         const tipoFiltro = params.get('tipo');
         document.getElementById('titulo').innerText = "Insumo: " + tipoFiltro;
@@ -82,7 +83,10 @@
                         .filter(row => row.toLowerCase().includes(term.toLowerCase()))
                         .map(row => {
                             const cols = row.split(',');
-                            return `<div class="card">
+                            // Prepara os dados da linha para enviar para a página de detalhes
+                            const rowData = encodeURIComponent(row);
+                            
+                            return `<div class="card" onclick="window.location.href='detalhes.html?data=' + '${rowData}'">
                                         <strong>${cols[1]}</strong><br>
                                         Lote: ${cols[4]} | NF: ${cols[3]}<br>
                                         <span class="${cols[6].toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado'}">${cols[6]}</span>
