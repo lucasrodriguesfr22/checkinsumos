@@ -73,7 +73,8 @@
                 }
             }
             if (celula || linhaAtual.length > 0) { linhaAtual.push(celula.trim()); linhas.push(linhaAtual); }
-            return linhas.slice(1).filter(l => l.length > 3);
+            // O Filtro Anti-Fantasmas entra em ação
+            return linhas.slice(1).filter(l => l.length > 3 && l[3] && l[3].trim() !== '');
         }
 
         fetch(CSV_URL).then(res => res.text()).then(data => {
