@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta</title>
-
     <link rel="icon" type="image/png" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
-    <link rel="apple-touch-icon" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
-
     <style>
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
         input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-size: 16px; outline: none; }
@@ -18,18 +15,23 @@
         .reprovado { color: #f44336; font-weight: bold; }
         button { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .brand-title { font-family: sans-serif; font-size: 24px; font-weight: bold; display: flex; align-items: center; gap: 10px; color: white; }
+        .brand-title img { height: 32px; border-radius: 6px; object-fit: contain; }
         .theme-icon { font-size: 26px; cursor: pointer; user-select: none; margin-right: 5px; }
-        .header-logo { height: 35px; border-radius: 8px; object-fit: contain; }
         body.light-mode { background: #f4f4f4; color: #121212; }
         body.light-mode .card { background: #ffffff; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-right: 1px solid #ccc; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
         body.light-mode input { background: #ffffff; color: #121212; border: 1px solid #ccc; }
         body.light-mode button { background: #ddd; color: #121212; }
+        body.light-mode .brand-title { color: #121212; }
     </style>
 </head>
 <body>
     <div class="header-top">
         <button onclick="history.back()">⬅ Voltar</button>
-        <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" class="header-logo" alt="Logo">
+        <div class="brand-title">
+            <img src="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png" alt="Logo">
+            Checkinsumos
+        </div>
         <div class="theme-icon" onclick="toggleTheme()" id="theme-toggle">☀️</div>
     </div>
     
@@ -79,12 +81,10 @@
 
             function render(term = '') {
                 const termoLimpo = term.toLowerCase().replace(/[.\-\s/]/g, '');
-
                 container.innerHTML = processedRows.filter(cols => {
                     if (!cols[0]) return false;
                     const tipoProdutoPlanilha = cols[0].toLowerCase();
                     const filtroEscolhido = tipoFiltro.toLowerCase();
-
                     if (filtroEscolhido === 'lata') return tipoProdutoPlanilha.includes('lata') && !tipoProdutoPlanilha.includes('tampa');
                     if (filtroEscolhido === 'tampa lata' || filtroEscolhido === 'tampa para lata') return tipoProdutoPlanilha.includes('tampa') && tipoProdutoPlanilha.includes('lata');
                     return tipoProdutoPlanilha.includes(filtroEscolhido);
@@ -94,13 +94,14 @@
                 }).map(cols => {
                     const rowData = encodeURIComponent(JSON.stringify(cols));
                     
-                    const nfLimpa = cols[3] || '-';
-                    const loteLimpo = cols[4] || '-';
-                    const statusTexto = cols[6] ? cols[6].trim() : '';
+                    const produto = cols[3] || '-';
+                    const nfLimpa = cols[5] || '-';
+                    const loteLimpo = cols[6] || '-';
+                    const statusTexto = cols[8] ? cols[8].trim() : '';
                     const classeStatus = statusTexto.toLowerCase().includes('aprovado') ? 'aprovado' : 'reprovado';
 
                     return `<div class="card" onclick="window.location.href='detalhes.html?data=${rowData}'">
-                                <strong>${cols[1] || '-'}</strong><br>
+                                <strong>${produto}</strong><br>
                                 Lote: ${loteLimpo} | NF: ${nfLimpa}<br>
                                 <span class="${classeStatus}">${statusTexto}</span>
                             </div>`;

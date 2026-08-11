@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkinsumos</title>
-    
     <link rel="icon" type="image/png" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
     <link rel="apple-touch-icon" href="https://i.ibb.co/nNgyj0XS/icone-checkinsumos.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,9 +11,22 @@
 
     <style>
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; transition: background 0.3s, color 0.3s; }
-        header { background: #F40009; padding: 20px; text-align: center; font-weight: bold; font-size: 22px; position: relative; display: flex; justify-content: center; align-items: center; }
+        
+        header { 
+            background: #F40009; 
+            padding: 15px 20px; 
+            text-align: center; 
+            font-family: sans-serif;
+            font-size: 26px; 
+            font-weight: bold; 
+            position: relative; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
         .header-logo { position: absolute; left: 20px; height: 35px; border-radius: 8px; object-fit: contain; }
         .theme-icon { position: absolute; right: 20px; font-size: 24px; cursor: pointer; user-select: none; }
+
         .search-container { padding: 15px 15px 0 15px; }
         input { width: 100%; padding: 15px; border-radius: 8px; border: none; background: #333; color: white; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-size: 16px; outline: none; }
         input:focus { border: 1px solid #F40009; }
@@ -26,6 +38,7 @@
         .card { background: #1e1e1e; border-radius: 12px; text-align: center; padding: 15px; border: 1px solid #333; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: background 0.3s, border 0.3s, color 0.3s; }
         .card img { width: 90px; height: 90px; object-fit: contain; margin-bottom: 10px; background-color: transparent; }
         .card div { font-weight: bold; font-size: 13px; margin-top: 5px; }
+        
         body.light-mode { background: #f4f4f4; color: #121212; }
         body.light-mode .card, body.light-mode .list-card { background: #ffffff; border: 1px solid #ccc; color: #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         body.light-mode .list-card { border-left: 5px solid #F40009; }
@@ -64,13 +77,11 @@
         }
         if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); themeIcon.innerText = '🌙'; }
 
-        // Variável de tempo para forçar o Google Sheets a entregar a versão mais nova possível
         const timestamp = new Date().getTime();
         const CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTWOWdtUog954LY_EmvbNUuqBKNBrkw_NamLje4xHyOjL46iV-XYCIsekzlJPV4q7dmBDC6oSTsHs6q/pub?gid=126364406&single=true&output=csv&nocache=${timestamp}`; 
         
         let todosOsDados = [];
 
-        // Leitor cérebro: Entende vírgulas e aspas sem quebrar os lotes
         function lerCSV(texto) {
             let linhas = [], celula = "", emAspas = false, linhaAtual = [];
             for (let i = 0; i < texto.length; i++) {
@@ -103,10 +114,7 @@
             if (termoBusca === '') { restaurarMenu(); return; }
             
             menuGrid.style.display = 'none'; resultsContainer.style.display = 'flex';
-            
-            if (todosOsDados.length === 0) { 
-                resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Carregando banco de dados... Aguarde.</div>'; return; 
-            }
+            if (todosOsDados.length === 0) { resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Carregando banco de dados... Aguarde.</div>'; return; }
 
             const resultados = todosOsDados.filter(cols => {
                 const linhaLimpa = cols.join(' ').toLowerCase().replace(/[.\-\s/]/g, '');
@@ -117,13 +125,13 @@
                 resultsContainer.innerHTML = resultados.slice(0, 30).map(cols => {
                     const rowData = encodeURIComponent(JSON.stringify(cols));
                     
-                    // Lendo as colunas originais do seu código (sem mascarar)
-                    const nfLimpa = cols[3] || '-';
-                    const loteLimpo = cols[4] || '-';
+                    const produto = cols[3] || '-';
+                    const nfLimpa = cols[5] || '-';
+                    const loteLimpo = cols[6] || '-';
 
                     return `<div class="list-card" onclick="window.location.href='detalhes.html?data=${rowData}'">
                                 <span class="tipo">Categoria: ${cols[0] || '-'}</span>
-                                <strong>${cols[1] || '-'}</strong><br>
+                                <strong>${produto}</strong><br>
                                 Lote: ${loteLimpo} | NF: ${nfLimpa}
                             </div>`;
                 }).join('');
